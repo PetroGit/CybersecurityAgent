@@ -32,9 +32,9 @@ else:
         chunk.text
         for chunk in content
         if getattr(chunk, "type", None) == "text"
-        and getattr(chunk, "text", None)
+        and isinstance(getattr(chunk, "text", None), str)
     )
 
-print("\n=== MISTRAL RESPONSE ===")
+print("\n=== MISTRAL FINAL ANSWER ===")
 print(final_answer)
 
