@@ -8,7 +8,7 @@ if not api_key:
 
 with Mistral(api_key=api_key) as client:
     response = client.chat.complete(
-        model="mistral-small-latest",
+        model="mistral-large-4",
         messages=[
             {
                 "role": "system",
