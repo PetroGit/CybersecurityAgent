@@ -16,7 +16,7 @@ with Mistral(api_key=api_key) as client:
             },
             {
                 "role": "user",
-                "content": "Explain Zero Trust in one sentence."
+                "content": "Explain Security by Design in one sentence."
             }
         ]
     )
