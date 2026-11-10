@@ -1,2 +1,3 @@
 # CybersecurityAgent
 agent to detect vulnerabilities in the code repository or analyse the vulnerabilities from the devops pipeline via SAST / DAST and SCA tools and identify and test remediation in a sandbox
+Mistral Large 4 (Le Chonk) enhances enterprise AI with advanced coding, cybersecurity, and document reasoning, while Mistral Studio provides a flexible platform for deploying agents, workflows, and apps across cloud, VPC, or on-premises environments. New features like managed agents, workflows, and enterprise context streamline business processes, enabling faster development and deployment of AI solutions. Customers like ABANCA and BNP Paribas already use Studio to automate tasks, improve efficiency, and maintain full control over their AI systems
