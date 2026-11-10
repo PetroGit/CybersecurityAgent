@@ -16,7 +16,7 @@ with Mistral(api_key=api_key) as client:
             },
             {
                 "role": "user",
-                "content": "Explain Vulnerability Management in one sentence."
+                "content": "Explain Log Monitoring in one sentence."
             }
         ]
     )
