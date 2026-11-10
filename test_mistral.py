@@ -39,7 +39,3 @@ else:
 print("\n=== MISTRAL FINAL ANSWER ===")
 print(final_answer)
 
-
-
-if __name__ == "__main__":
-    main()
