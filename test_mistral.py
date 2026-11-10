@@ -8,7 +8,7 @@ api_key = os.environ["MISTRAL_API_KEY"]
 client = Mistral(api_key=api_key)
 
 response = client.chat.complete(
-    model="YOUR_MISTRAL_LARGE_4_MODEL_ID",
+    model="mistral-large-4",
     messages=[
         {
             "role": "system",
