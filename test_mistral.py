@@ -1,5 +1,3 @@
-
-
 import os
 import json
 import re
@@ -152,4 +150,3 @@ for item in verified_claims:
 
 if rejected_count:
     print(f"\nOmitted {rejected_count} claim(s) whose evidence was missing or not found in the fetched page.")
-
