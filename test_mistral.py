@@ -12,6 +12,7 @@ MAX_PAGE_CHARS = 20000
 
 
 class PageTextParser(HTMLParser):
+    # Ignore non-visible blocks so they do not become evidence in the prompt.
     ignored_tags = {"script", "style", "noscript", "svg"}
     block_tags = {"article", "br", "div", "h1", "h2", "h3", "li", "p", "section"}
 
@@ -82,6 +83,7 @@ def verify_claims(result, source_text):
             rejected += 1
             continue
         normalized_evidence = re.sub(r"\s+", " ", evidence).strip().casefold()
+        # This confirms the quote appears in the source, not that it proves the claim.
         if normalized_evidence not in normalized_source:
             rejected += 1
             continue
