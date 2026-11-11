@@ -115,10 +115,12 @@ The default target is `test_mistral.py`. The `--config`, `--metrics`, and
 ## Trivy SCA
 
 `sca_trivy.py` uses Trivy's filesystem vulnerability scanner to inspect
-dependency manifests and report package versions, severities, advisories, and
-fixed versions when available. It reads dependency metadata but does not execute
-the application or its dependencies. Install the Trivy CLI using the supported
-instructions for your platform and ensure `trivy` is available on `PATH`.
+dependency manifests and report the dependency targets and package inventory,
+including packages without known vulnerabilities. It also reports severity,
+advisory links, and fixed versions when available. It reads dependency metadata
+but does not execute the application or its dependencies. Install the Trivy CLI
+using the supported instructions for your platform and ensure `trivy` is
+available on `PATH`.
 
 Run it against the current directory or a selected project path:
 
@@ -129,5 +131,7 @@ python .\sca_trivy.py .\path\to\project --severity HIGH CRITICAL
 ```
 
 Trivy may download or update its vulnerability database during the first scan.
+The listed files are Trivy-reported dependency targets, not every file read
+during filesystem traversal.
 The script exits with status `0` when no vulnerabilities are reported, `1` when
 findings are reported, and `2` when the scan cannot complete reliably.

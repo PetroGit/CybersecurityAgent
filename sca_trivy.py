@@ -43,26 +43,37 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_vulnerabilities(report):
+def get_scan_results(report):
     results = report.get("Results", [])
     if results is None:
         return []
     if not isinstance(results, list):
         raise ValueError("Trivy returned an unexpected Results field.")
 
-    vulnerabilities = []
     for result in results:
         if not isinstance(result, dict):
             raise ValueError("Trivy returned a malformed scan result.")
+        packages = result.get("Packages") or []
+        if not isinstance(packages, list):
+            raise ValueError("Trivy returned an unexpected Packages field.")
+        if any(not isinstance(package, dict) for package in packages):
+            raise ValueError("Trivy returned a malformed package entry.")
+
         findings = result.get("Vulnerabilities") or []
         if not isinstance(findings, list):
             raise ValueError("Trivy returned an unexpected Vulnerabilities field.")
-        for finding in findings:
-            if not isinstance(finding, dict):
-                raise ValueError("Trivy returned a malformed vulnerability finding.")
-            vulnerabilities.append((result, finding))
+        if any(not isinstance(finding, dict) for finding in findings):
+            raise ValueError("Trivy returned a malformed vulnerability finding.")
 
-    return vulnerabilities
+    return results
+
+
+def get_vulnerabilities(results):
+    return [
+        (result, finding)
+        for result in results
+        for finding in (result.get("Vulnerabilities") or [])
+    ]
 
 
 def finding_url(finding):
@@ -76,6 +87,15 @@ def finding_url(finding):
             if isinstance(reference, str) and reference:
                 return reference
     return "Not provided by Trivy"
+
+
+def format_package(package):
+    name = package.get("Name") or package.get("PkgName") or "Unknown package"
+    version = package.get("Version") or package.get("PkgVersion") or "Unknown"
+    identifier = package.get("Identifier", {})
+    purl = identifier.get("PURL") if isinstance(identifier, dict) else None
+    suffix = f" ({purl})" if purl else ""
+    return f"  - {name} {version}{suffix}"
 
 
 def format_finding(result, finding):
@@ -130,6 +150,7 @@ def main():
         "vuln",
         "--format",
         "json",
+        "--list-all-pkgs",
         "--exit-code",
         "1",
         "--severity",
@@ -173,18 +194,43 @@ def main():
         return 2
 
     try:
-        vulnerabilities = get_vulnerabilities(report)
+        results = get_scan_results(report)
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2
+
+    vulnerabilities = get_vulnerabilities(results)
+    package_count = 0
+
+    print("Dependency files/targets reported by Trivy:")
+    if not results:
+        print("  No dependency targets were reported.")
+    for result in results:
+        target_name = result.get("Target", "Unknown target")
+        package_type = result.get("Type", "unknown type")
+        package_class = result.get("Class", "unknown class")
+        packages = result.get("Packages") or []
+        package_count += len(packages)
+
+        print(f"- {target_name} ({package_type}, {package_class})")
+        if packages:
+            for package in packages:
+                print(format_package(package))
+        else:
+            print("  No package inventory returned for this target.")
+
+    print(f"\nLibraries/packages reported: {package_count}")
 
     for result, finding in vulnerabilities:
         print(format_finding(result, finding))
 
     if not vulnerabilities:
-        print("No dependency vulnerabilities were reported by Trivy.")
+        print("\nNo dependency vulnerabilities were reported by Trivy.")
 
-    print(f"\nTrivy SCA complete: {len(vulnerabilities)} finding(s).")
+    print(
+        f"\nTrivy SCA complete: {len(vulnerabilities)} finding(s) "
+        f"across {len(results)} target(s)."
+    )
 
     expected_returncode = 1 if vulnerabilities else 0
     if completed.returncode != expected_returncode:
