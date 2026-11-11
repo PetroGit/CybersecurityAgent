@@ -66,3 +66,28 @@ voxtral-mini-tts-2603
 voxtral-mini-tts-latest
 voxtral-mini-tts-3-0
 voxtral-mini-tts-3
+
+## Semgrep SAST
+
+`sast_semgrep.py` runs Semgrep against a file or directory for static security
+analysis. It reads the source code but does not execute it. Install the Semgrep
+CLI using the supported instructions for your platform and ensure `semgrep` is
+available on `PATH`.
+
+Run a scan from PowerShell:
+
+```powershell
+python .\sast_semgrep.py .\src
+```
+
+By default, the script uses Semgrep's `auto` ruleset. Pass `--config` to use a
+different Semgrep ruleset or a local rules file:
+
+```powershell
+python .\sast_semgrep.py .\src --config p/security-audit
+python .\sast_semgrep.py .\src --config .\semgrep-rules.yml
+```
+
+The script prints each finding's rule, severity, file, line, and message. It
+exits with status `0` when no findings are reported, `1` when findings are
+reported, and `2` when the scan cannot complete reliably.
