@@ -38,6 +38,11 @@ def parse_args():
         default=DEFAULT_TIMEOUT_SECONDS,
         help=f"Maximum scan time in seconds (default: {DEFAULT_TIMEOUT_SECONDS}).",
     )
+    parser.add_argument(
+        "--json-output",
+        action="store_true",
+        help="Print the raw findings and scan errors as JSON for use by other tools.",
+    )
     return parser.parse_args()
 
 
@@ -160,15 +165,19 @@ def main():
         print("Error: Semgrep returned a malformed finding.", file=sys.stderr)
         return 2
 
-    for finding in findings:
-        print(format_finding(finding))
+    if args.json_output:
+        print(json.dumps({"results": findings, "errors": errors}))
+    else:
+        for finding in findings:
+            print(format_finding(finding))
 
-    if errors:
-        report_errors(errors)
+        if errors:
+            report_errors(errors)
 
     finding_count = len(findings)
     error_count = len(errors)
-    print(f"\nSemgrep scan complete: {finding_count} finding(s), {error_count} error(s).")
+    if not args.json_output:
+        print(f"\nSemgrep scan complete: {finding_count} finding(s), {error_count} error(s).")
 
     expected_returncode = 1 if finding_count else 0
     if error_count or completed.returncode != expected_returncode:

@@ -95,3 +95,19 @@ explicitly with `--config auto --metrics on`.
 The script prints each finding's rule, severity, file, line, and message. It
 exits with status `0` when no findings are reported, `1` when findings are
 reported, and `2` when the scan cannot complete reliably.
+
+## Semgrep findings with Mistral
+
+`sast_mistral.py` runs the Semgrep wrapper, fetches MITRE CWE pages for
+CWE-tagged findings, and asks Mistral to explain the finding using the
+Semgrep metadata and CWE text. It validates each returned evidence quote
+against those supplied sources. The scanned source code is not sent to Mistral.
+Set `MISTRAL_API_KEY` before running it:
+
+```powershell
+python .\sast_mistral.py
+python .\sast_mistral.py .\src\module.py
+```
+
+The default target is `test_mistral.py`. The `--config`, `--metrics`, and
+`--timeout` options are also passed to `sast_semgrep.py`.
