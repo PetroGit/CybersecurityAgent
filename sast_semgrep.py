@@ -23,8 +23,14 @@ def parse_args():
     )
     parser.add_argument(
         "--config",
-        default="auto",
-        help="Semgrep ruleset or rules file to use (default: auto).",
+        default="p/security-audit",
+        help="Semgrep ruleset or rules file to use (default: p/security-audit).",
+    )
+    parser.add_argument(
+        "--metrics",
+        choices=("off", "on"),
+        default="off",
+        help="Whether to allow Semgrep metrics (default: off).",
     )
     parser.add_argument(
         "--timeout",
@@ -78,6 +84,14 @@ def main():
         print("Error: --timeout must be a positive number.", file=sys.stderr)
         return 2
 
+    if args.config.casefold() == "auto" and args.metrics == "off":
+        print(
+            "Error: Semgrep's 'auto' config requires metrics. Use a specific "
+            "config such as 'p/security-audit', or pass --metrics on.",
+            file=sys.stderr,
+        )
+        return 2
+
     target = Path(args.target).expanduser().resolve()
     if not target.exists():
         print(f"Error: target does not exist: {target}", file=sys.stderr)
@@ -98,7 +112,7 @@ def main():
         "scan",
         "--config",
         args.config,
-        "--metrics=off",
+        f"--metrics={args.metrics}",
         "--error",
         "--json",
         str(target),

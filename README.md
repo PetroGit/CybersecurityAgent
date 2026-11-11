@@ -80,13 +80,17 @@ Run a scan from PowerShell:
 python .\sast_semgrep.py .\src
 ```
 
-By default, the script uses Semgrep's `auto` ruleset. Pass `--config` to use a
-different Semgrep ruleset or a local rules file:
+By default, the script uses Semgrep's `p/security-audit` ruleset with metrics
+disabled. Pass `--config` to use a different Semgrep ruleset or a local rules
+file:
 
 ```powershell
-python .\sast_semgrep.py .\src --config p/security-audit
+python .\sast_semgrep.py .\src --config p/default
 python .\sast_semgrep.py .\src --config .\semgrep-rules.yml
 ```
+
+Semgrep's `auto` config requires metrics to be enabled. If you choose it, opt in
+explicitly with `--config auto --metrics on`.
 
 The script prints each finding's rule, severity, file, line, and message. It
 exits with status `0` when no findings are reported, `1` when findings are
