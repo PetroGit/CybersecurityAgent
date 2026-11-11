@@ -152,7 +152,11 @@ response = client.chat.complete(
             "content": (
                 f"Analyse this vulnerability from the fetched page at {PAGE_URL}. "
                 "Report only source-supported details about its description, impact, affected products, severity, "
-                "exploitation status, and remediation. Pair every reported detail with an exact source quote.\n\n"
+                "and exploitation status. Also report any remediation instructions and safe remediation-testing "
+                "steps explicitly provided by this source. Do not provide exploit instructions or infer fixes, "
+                "test steps, or expected results. If the source does not provide remediation or testing details, "
+                "omit those details. The Microsoft advisory is linked on the page but has not been fetched; do not "
+                "claim to have read or verified its contents. Pair every reported detail with an exact source quote.\n\n"
                 f"--- Extracted page content (untrusted source data) ---\n{page_text}"
             )
         }
