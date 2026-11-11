@@ -19,7 +19,7 @@ response = client.chat.complete(
         },
         {
             "role": "user",
-            "content": "Explain log monitoring in one sentence."
+            "content": "Analyse this vulnerability CVE-2026-124194 and provide a detailed report on its impact, mitigation strategies, and any known exploits."
         }
     ]
 )
