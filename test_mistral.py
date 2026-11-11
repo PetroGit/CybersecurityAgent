@@ -7,21 +7,28 @@ from urllib.request import Request, urlopen
 
 from mistralai.client import Mistral
 
+
+# Page to analyze and maximum amount of extracted text sent to the model.
 PAGE_URL = "https://app.opencve.io/cve/CVE-2026-124194"
 MAX_PAGE_CHARS = 20002
 
 
 class PageTextParser(HTMLParser):
-    # Ignore non-visible blocks so they do not become evidence in the prompt.
+    # Skip content that is not useful as visible page text.
     ignored_tags = {"script", "style", "noscript", "svg"}
+
+    # Add line breaks around these elements to keep the extracted text readable.
     block_tags = {"article", "br", "div", "h1", "h2", "h3", "li", "p", "section"}
 
     def __init__(self):
+        # Decode HTML character references, such as &amp;, automatically.
         super().__init__(convert_charrefs=True)
         self.parts = []
+        # Tracks whether the parser is currently inside ignored content.
         self.ignored_depth = 0
 
     def handle_starttag(self, tag, attrs):
+        # Keep track of nested tags inside ignored content.
         if self.ignored_depth:
             self.ignored_depth += 1
         elif tag in self.ignored_tags:
@@ -30,73 +37,102 @@ class PageTextParser(HTMLParser):
             self.parts.append("\n")
 
     def handle_endtag(self, tag):
+        # Leave ignored content as its nested tags close.
         if self.ignored_depth:
             self.ignored_depth -= 1
         elif tag in self.block_tags:
             self.parts.append("\n")
 
     def handle_data(self, data):
+        # Collect text only when it is outside ignored elements.
         if not self.ignored_depth:
             self.parts.append(data)
 
     def get_text(self):
+        # Join the text fragments, normalize spaces, and remove extra blank lines.
         text = "".join(self.parts)
         text = re.sub(r"[ \t]+", " ", text)
         return re.sub(r"\n\s*\n+", "\n", text).strip()
 
 
 def fetch_page_text(url):
+    # Set a User-Agent header so the server can identify this request.
     request = Request(url, headers={"User-Agent": "CybersecurityAgent/1.0"})
+
     try:
+        # Fetch the page with a timeout so the request cannot wait indefinitely.
         with urlopen(request, timeout=20) as response:
+            # Use the page's declared character encoding, or UTF-8 if none is given.
             html = response.read().decode(
                 response.headers.get_content_charset() or "utf-8",
                 errors="replace",
             )
     except (URLError, TimeoutError) as exc:
+        # Raise a clear error while preserving the original exception as its cause.
         raise RuntimeError(f"Could not fetch {url}: {exc}") from exc
 
+    # Convert the HTML into readable text.
     parser = PageTextParser()
     parser.feed(html)
     page_text = parser.get_text()
+
     if not page_text:
         raise RuntimeError(f"No readable page text was found at {url}")
+
+    # Limit the text length before sending it to the API.
     return page_text[:MAX_PAGE_CHARS]
 
 
 def verify_claims(result, source_text):
+    # Read the claims list only if the response is a JSON object.
     claims = result.get("claims", []) if isinstance(result, dict) else []
+
+    # Normalize whitespace and capitalization so formatting differences don't
+    # prevent an otherwise exact evidence quote from being found.
     normalized_source = re.sub(r"\s+", " ", source_text).strip().casefold()
+
     verified = []
     rejected = 0
 
     for item in claims:
+        # Each claim must be an object with non-empty claim and evidence strings.
         if not isinstance(item, dict):
             rejected += 1
             continue
+
         claim = item.get("claim")
         evidence = item.get("evidence")
+
         if not isinstance(claim, str) or not claim.strip():
             rejected += 1
             continue
+
         if not isinstance(evidence, str) or not evidence.strip():
             rejected += 1
             continue
+
+        # Check that the supplied evidence quote appears in the fetched page.
         normalized_evidence = re.sub(r"\s+", " ", evidence).strip().casefold()
-        # This confirms the quote appears in the source, not that it proves the claim.
+
+        # This checks that the quote is present in the source; it does not prove
+        # that the quote logically supports the claim.
         if normalized_evidence not in normalized_source:
             rejected += 1
             continue
+
         verified.append({"claim": claim.strip(), "evidence": evidence.strip()})
 
     return verified, rejected
 
 
+# Read the API key from the environment rather than hard-coding it.
 api_key = os.environ["MISTRAL_API_KEY"]
 
+# Create the Mistral client and fetch the page text.
 client = Mistral(api_key=api_key)
 page_text = fetch_page_text(PAGE_URL)
 
+# Ask the model for claims that are supported by exact quotes from the page.
 response = client.chat.complete(
     model="mistral-large-4",
     messages=[
@@ -123,11 +159,13 @@ response = client.chat.complete(
     ]
 )
 
+# The response content may be plain text or a sequence of text blocks.
 content = response.choices[0].message.content
 
 if isinstance(content, str):
     final_answer = content
 else:
+    # Keep only text blocks and join them into one string for JSON parsing.
     content = "\n".join(
         chunk.text
         for chunk in content
@@ -136,20 +174,28 @@ else:
     )
 
 print("\n=== MISTRAL FINAL ANSWER ===")
+
+# Parse the model's response as JSON. Stop if it is not valid JSON.
 try:
     result = json.loads(content)
 except (json.JSONDecodeError, TypeError):
     raise SystemExit("Could not verify the response: Mistral did not return valid JSON.")
 
+# Keep only claims whose evidence quote appears in the fetched page.
 verified_claims, rejected_count = verify_claims(result, page_text)
+
 if not verified_claims:
     raise SystemExit("No claims could be verified against the fetched page.")
 
+# Display each verified claim with its source and supporting quote.
 for item in verified_claims:
     print(f"- {item['claim']}")
     print(f"  Source: {PAGE_URL}")
     print(f"  Evidence: \"{item['evidence']}\"")
 
+# Report how many claims were omitted because their evidence did not pass validation.
 if rejected_count:
-    print(f"\nOmitted {rejected_count} claim(s) whose evidence was missing or not found in the fetched page.")
-    
+    print(
+        f"\nOmitted {rejected_count} claim(s) whose evidence was missing "
+        "or not found in the fetched page."
+    )
