@@ -8,7 +8,7 @@ from urllib.request import Request, urlopen
 from mistralai.client import Mistral
 
 PAGE_URL = "https://app.opencve.io/cve/CVE-2026-124194"
-MAX_PAGE_CHARS = 20000
+MAX_PAGE_CHARS = 20002
 
 
 class PageTextParser(HTMLParser):
