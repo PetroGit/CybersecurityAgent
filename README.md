@@ -113,7 +113,8 @@ The default target is `test_mistral.py`. The `--config`, `--metrics`, and
 `--timeout` options are also passed to `sast_semgrep.py`.
 
 The GitHub Actions workflow `.github/workflows/sast-mistral.yml` runs this scan
-on pushes and pull requests targeting `main`, and can also be started manually.
+on pushes to any branch and on pull requests targeting any branch, and can also
+be started manually.
 Add `MISTRAL_API_KEY` as a repository or organization Actions secret to enable
 Mistral enrichment. For pull requests from forks, where GitHub withholds
 secrets, the workflow runs Semgrep without Mistral enrichment. Findings are
