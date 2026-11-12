@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -178,6 +179,9 @@ def main():
     error_count = len(errors)
     if not args.json_output:
         print(f"\nSemgrep scan complete: {finding_count} finding(s), {error_count} error(s).")
+
+    if finding_count == 0 and os.environ.get("GITHUB_ACTIONS") == "true":
+        print("::notice::No SAST findings were detected.")
 
     expected_returncode = 1 if finding_count else 0
     if error_count or completed.returncode != expected_returncode:

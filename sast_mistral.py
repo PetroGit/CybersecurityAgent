@@ -358,6 +358,8 @@ def main():
 
     if not findings:
         print("No Semgrep findings; no CWE pages or Mistral requests were needed.")
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            print("::notice::No SAST findings were detected.")
         return 0
 
     analysis_items = []
