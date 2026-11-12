@@ -10,7 +10,7 @@ from mistralai.client import Mistral
 
 # Page to analyze and maximum amount of extracted text sent to the model.
 PAGE_URL = "https://app.opencve.io/cve/CVE-2026-124194"
-MAX_PAGE_CHARS = 20002
+MAX_PAGE_CHARS = 20003
 
 
 class PageTextParser(HTMLParser):
