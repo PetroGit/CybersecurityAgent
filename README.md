@@ -92,33 +92,53 @@ python .\sast_semgrep.py .\src --config .\semgrep-rules.yml
 Semgrep's `auto` config requires metrics to be enabled. If you choose it, opt in
 explicitly with `--config auto --metrics on`.
 
-The script prints each finding's rule, severity, file, line, and message. It
-exits with status `0` when no findings are reported, `1` when findings are
-reported, and `2` when the scan cannot complete reliably.
+The script prints each finding's rule, severity, file, line, and message. In
+GitHub Actions it also creates an annotation for each finding. Use
+`--json-file report.json` to export findings and scan errors as structured JSON;
+`--json-output` continues to write that JSON to standard output. It exits
+with status `0` when no findings are reported, `1` when findings are reported,
+and `2` when the scan cannot complete reliably.
 
 ## Semgrep findings with Mistral
 
-`sast_mistral.py` runs the Semgrep wrapper, fetches MITRE CWE pages for
-CWE-tagged findings, and asks Mistral to explain the finding using the
-Semgrep metadata and CWE text. It validates each returned evidence quote
-against those supplied sources. The scanned source code is not sent to Mistral.
+`sast_mistral.py` can run Semgrep or consume an existing Semgrep JSON report. It
+fetches MITRE CWE pages for CWE-tagged findings and asks Mistral to triage them
+using Semgrep metadata and CWE text. It validates returned evidence quotes
+against those sources. Source code is not sent to Mistral; its risk summary and
+generic patch guidance are unverified, not source-specific, and require review.
 Set `MISTRAL_API_KEY` before running it:
 
 ```powershell
 python .\sast_mistral.py
 python .\sast_mistral.py .\src\module.py
+python .\sast_mistral.py . --semgrep-report .\semgrep-results.json --json-report .\mistral-triage.json
 ```
 
 The default target is `test_mistral.py`. The `--config`, `--metrics`, and
-`--timeout` options are also passed to `sast_semgrep.py`.
+`--timeout` options are passed to `sast_semgrep.py` when it runs a scan.
 
-The GitHub Actions workflow `.github/workflows/sast-mistral.yml` runs this scan
-on pushes to any branch and on pull requests targeting any branch, and can also
-be started manually.
-Add `MISTRAL_API_KEY` as a repository or organization Actions secret to enable
-Mistral enrichment. For pull requests from forks, where GitHub withholds
-secrets, the workflow runs Semgrep without Mistral enrichment. Findings are
-reported but do not fail the workflow; scan or analysis errors do.
+The GitHub Actions workflow `.github/workflows/sast-mistral.yml` runs Semgrep
+on pushes to any branch and on pull requests targeting any branch. It uploads
+`semgrep-results.json` as the `semgrep-results` artifact and annotates each
+finding. Findings do not fail this reporting job; scan errors do.
+
+Mistral triage runs only for pushes to `main` and manual runs started from
+`main`, using the report from that run. To enable it, create a GitHub Actions
+environment named `mistral-analysis`, add `MISTRAL_API_KEY` as an environment
+secret, and restrict deployments to `main`. The triage job checks out `main`;
+feature-branch and pull-request jobs never receive the Mistral secret. When
+enabled, it uploads `mistral-triage.json` as the `mistral-triage` artifact.
+
+## Validating and submitting a remediation
+
+Author a remediation on a branch named `remediation/<short-name>` and push it.
+Then run the **Validate security remediation PR** workflow from the `main`
+branch, providing that branch name. It syntax-checks changed Python files and
+rescans against `main`, failing if new Semgrep findings are introduced. This
+repository has no safe automated test suite; `test_mistral.py` makes live
+external-service calls and is not run as a patch test. A passing run opens a
+pull request for human review and never merges it. Review the data flow,
+remediation, and test coverage before approving or merging.
 
 ## Trivy SCA
 

@@ -1,0 +1,110 @@
+name: Validate security remediation PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      remediation_branch:
+        description: Existing remediation/* branch to validate and submit as a PR
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-and-open-pr:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validate remediation branch name
+        id: branch
+        env:
+          REMEDIATION_BRANCH: ${{ inputs.remediation_branch }}
+        run: |
+          if [[ ! "$REMEDIATION_BRANCH" =~ ^remediation/[A-Za-z0-9._/-]+$ ]] ||
+            ! git check-ref-format --branch "$REMEDIATION_BRANCH"; then
+            echo "::error::Use an existing branch named remediation/<short-name>."
+            exit 1
+          fi
+          echo "name=$REMEDIATION_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Check out remediation branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.branch.outputs.name }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch main for comparison
+        run: git fetch --no-tags origin main:refs/remotes/origin/main
+
+      - name: Confirm remediation changes exist
+        run: |
+          if git diff --quiet origin/main...HEAD; then
+            echo "::error::The remediation branch has no changes relative to main."
+            exit 1
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install Semgrep
+        run: python -m pip install semgrep
+
+      - name: Compile changed Python files
+        env:
+          PYTHONPYCACHEPREFIX: ${{ runner.temp }}/pycache
+        run: |
+          mapfile -d '' -t python_files < <(
+            git diff --name-only -z --diff-filter=ACMRT origin/main...HEAD -- '*.py'
+          )
+          if [ "${#python_files[@]}" -eq 0 ]; then
+            echo "No changed Python files; syntax compilation is not applicable."
+          else
+            python -m py_compile "${python_files[@]}"
+          fi
+
+      - name: Rescan for newly introduced findings
+        run: |
+          set +e
+          semgrep scan \
+            --config p/security-audit \
+            --metrics=off \
+            --baseline-commit origin/main \
+            --error \
+            --json-output semgrep-new-findings.json \
+            .
+          status=$?
+          set -e
+          if [ "$status" -eq 1 ]; then
+            echo "::error::The remediation introduces new Semgrep findings."
+            exit 1
+          fi
+          if [ "$status" -ne 0 ]; then
+            echo "::error::Semgrep could not complete the baseline scan."
+            exit "$status"
+          fi
+          echo "Semgrep baseline scan passed with no new findings." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open pull request for human review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REMEDIATION_BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          existing_pr=$(gh pr list \
+            --head "$REMEDIATION_BRANCH" \
+            --base main \
+            --json url \
+            --jq '.[0].url')
+          if [ -n "$existing_pr" ]; then
+            echo "An open pull request already exists: $existing_pr"
+            exit 0
+          fi
+          gh pr create \
+            --head "$REMEDIATION_BRANCH" \
+            --base main \
+            --title "Security remediation: ${REMEDIATION_BRANCH#remediation/}" \
+            --body "Automated validation passed: changed Python files were syntax-checked where applicable and Semgrep found no new findings relative to main. Please review the source data flow, security impact, tests, and patch correctness before merging. This workflow does not merge automatically."

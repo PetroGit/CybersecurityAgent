@@ -44,6 +44,14 @@ def parse_args():
         action="store_true",
         help="Print the raw findings and scan errors as JSON for use by other tools.",
     )
+    parser.add_argument(
+        "--json-file",
+        help="Write the raw findings and scan errors to this JSON file.",
+    )
+    parser.add_argument(
+        "--baseline-commit",
+        help="Report only findings introduced since this Git commit.",
+    )
     return parser.parse_args()
 
 
@@ -81,6 +89,40 @@ def report_errors(errors):
         else:
             message = str(error)
         print(f"Semgrep error: {message}", file=sys.stderr)
+
+
+def escape_annotation_property(value):
+    return (
+        str(value)
+        .replace("%", "%25")
+        .replace("\r", "%0D")
+        .replace("\n", "%0A")
+        .replace(":", "%3A")
+        .replace(",", "%2C")
+    )
+
+
+def escape_annotation_message(value):
+    return str(value).replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+
+def report_github_annotations(findings):
+    for finding in findings:
+        extra = finding.get("extra", {})
+        extra = extra if isinstance(extra, dict) else {}
+        start = finding.get("start", {})
+        start = start if isinstance(start, dict) else {}
+        path = escape_annotation_property(finding.get("path", "<unknown file>"))
+        line = start.get("line", 1)
+        if not isinstance(line, int) or line < 1:
+            line = 1
+        rule_id = escape_annotation_property(finding.get("check_id", "unknown-rule"))
+        message = escape_annotation_message(
+            extra.get("message", "No finding description provided.")
+        )
+        print(
+            f"::warning file={path},line={line},title={rule_id}::{message}"
+        )
 
 
 def main():
@@ -123,6 +165,8 @@ def main():
         "--json",
         str(target),
     ]
+    if args.baseline_commit:
+        command.extend(["--baseline-commit", args.baseline_commit])
 
     try:
         completed = subprocess.run(
@@ -166,11 +210,23 @@ def main():
         print("Error: Semgrep returned a malformed finding.", file=sys.stderr)
         return 2
 
+    if args.json_file:
+        try:
+            Path(args.json_file).write_text(
+                json.dumps({"results": findings, "errors": errors}, indent=2) + "\n",
+                encoding="utf-8",
+            )
+        except OSError as exc:
+            print(f"Error: could not write JSON report: {exc}", file=sys.stderr)
+            return 2
+
     if args.json_output:
         print(json.dumps({"results": findings, "errors": errors}))
     else:
         for finding in findings:
             print(format_finding(finding))
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            report_github_annotations(findings)
 
         if errors:
             report_errors(errors)
