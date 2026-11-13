@@ -26,12 +26,20 @@ jobs:
       - name: Run Semgrep and export JSON
         run: |
           set +e
-          python sast_semgrep.py . --json-file semgrep-results.json
+          python sast_semgrep.py . \
+            --json-file semgrep-results.json \
+            --sarif-file semgrep-dataflow.sarif
           status=$?
           set -e
           if [ "$status" -gt 1 ]; then
             exit "$status"
           fi
+          python sast_evidence.py \
+            --semgrep-report semgrep-results.json \
+            --sarif-report semgrep-dataflow.sarif \
+            --root . \
+            --local-report local-evidence.json \
+            --sanitized-report mistral-evidence.json
           if [ "$status" -eq 1 ]; then
             echo "::notice::Semgrep findings are reported but do not fail this SAST workflow."
           fi
@@ -43,6 +51,14 @@ jobs:
           name: semgrep-results
           path: semgrep-results.json
           if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload allowlisted Mistral evidence
+        if: always() && hashFiles('mistral-evidence.json') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: mistral-evidence
+          path: mistral-evidence.json
           retention-days: 14
 
   mistral-triage:
@@ -66,10 +82,10 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Download Semgrep report
+      - name: Download allowlisted Mistral evidence
         uses: actions/download-artifact@v8
         with:
-          name: semgrep-results
+          name: mistral-evidence
 
       - name: Triage findings with Mistral
         env:
@@ -77,7 +93,7 @@ jobs:
         run: |
           if [ -n "$MISTRAL_API_KEY" ]; then
             python sast_mistral.py . \
-              --semgrep-report semgrep-results.json \
+              --evidence-report mistral-evidence.json \
               --json-report mistral-triage.json
           else
             echo "::notice::Configure MISTRAL_API_KEY in the mistral-analysis environment to enable triage."

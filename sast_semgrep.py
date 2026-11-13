@@ -12,6 +12,12 @@ from pathlib import Path
 DEFAULT_TIMEOUT_SECONDS = 300
 
 
+def semgrep_environment():
+    environment = os.environ.copy()
+    environment["PYTHONUTF8"] = "1"
+    return environment
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Analyze source code for security issues with Semgrep."
@@ -51,6 +57,10 @@ def parse_args():
     parser.add_argument(
         "--baseline-commit",
         help="Report only findings introduced since this Git commit.",
+    )
+    parser.add_argument(
+        "--sarif-file",
+        help="Also write a SARIF report with Semgrep data-flow traces to this file.",
     )
     return parser.parse_args()
 
@@ -176,6 +186,7 @@ def main():
             encoding="utf-8",
             errors="replace",
             timeout=args.timeout,
+            env=semgrep_environment(),
             check=False,
         )
     except subprocess.TimeoutExpired:
@@ -218,6 +229,85 @@ def main():
             )
         except OSError as exc:
             print(f"Error: could not write JSON report: {exc}", file=sys.stderr)
+            return 2
+
+    if args.sarif_file:
+        sarif_command = [
+            semgrep,
+            "scan",
+            "--config",
+            args.config,
+            f"--metrics={args.metrics}",
+            "--error",
+            "--sarif",
+            "--dataflow-traces",
+            "--sarif-output",
+            args.sarif_file,
+            str(target),
+        ]
+        if args.baseline_commit:
+            sarif_command.extend(["--baseline-commit", args.baseline_commit])
+        try:
+            sarif_completed = subprocess.run(
+                sarif_command,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=args.timeout,
+                env=semgrep_environment(),
+                check=False,
+            )
+        except subprocess.TimeoutExpired:
+            print(
+                f"Error: Semgrep SARIF scan exceeded the {args.timeout}-second timeout.",
+                file=sys.stderr,
+            )
+            return 2
+        except OSError as exc:
+            print(f"Error: could not start Semgrep SARIF scan: {exc}", file=sys.stderr)
+            return 2
+
+        try:
+            with Path(args.sarif_file).open(encoding="utf-8") as sarif_file:
+                sarif_report = json.load(sarif_file)
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"Error: Semgrep did not write valid SARIF: {exc}", file=sys.stderr)
+            return 2
+
+        if not isinstance(sarif_report, dict) or not isinstance(
+            sarif_report.get("runs"), list
+        ):
+            print("Error: Semgrep returned an unexpected SARIF format.", file=sys.stderr)
+            return 2
+        for run in sarif_report["runs"]:
+            if not isinstance(run, dict):
+                print("Error: Semgrep returned a malformed SARIF run.", file=sys.stderr)
+                return 2
+            invocations = run.get("invocations", [])
+            if not isinstance(invocations, list) or any(
+                not isinstance(invocation, dict)
+                for invocation in invocations
+            ):
+                print(
+                    "Error: Semgrep returned malformed SARIF invocations.",
+                    file=sys.stderr,
+                )
+                return 2
+            if any(
+                invocation.get("executionSuccessful") is False
+                for invocation in invocations
+            ):
+                print(
+                    "Error: Semgrep SARIF scan did not complete cleanly.",
+                    file=sys.stderr,
+                )
+                return 2
+        if sarif_completed.returncode != completed.returncode:
+            print(
+                "Error: Semgrep JSON and SARIF scans returned different exit codes.",
+                file=sys.stderr,
+            )
             return 2
 
     if args.json_output:

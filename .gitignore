@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated SAST reports; local evidence can contain source excerpts.
+semgrep-results.json
+semgrep-dataflow.sarif
+local-evidence.json
+mistral-evidence.json
+mistral-triage.json

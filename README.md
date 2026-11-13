@@ -101,26 +101,42 @@ and `2` when the scan cannot complete reliably.
 
 ## Semgrep findings with Mistral
 
-`sast_mistral.py` can run Semgrep or consume an existing Semgrep JSON report. It
-fetches MITRE CWE pages for CWE-tagged findings and asks Mistral to triage them
-using Semgrep metadata and CWE text. It validates returned evidence quotes
-against those sources. Source code is not sent to Mistral; its risk summary and
-generic patch guidance are unverified, not source-specific, and require review.
+`sast_evidence.py` runs locally after Semgrep. It resolves findings to source
+files within the repository, records bounded source/function/caller context,
+and consumes optional Semgrep SARIF data-flow traces. The local report can
+contain source excerpts; do not upload it or send it to an external service.
+The separate `mistral-evidence.json` report contains only allowlisted metadata
+and explicit `unknown` values where local analysis lacks evidence.
+
+`sast_mistral.py` accepts that allowlisted report, fetches public MITRE CWE
+guidance, and asks Mistral to interpret the evidence. It rejects reports with
+fields outside the allowlist. Source code, excerpts, repository paths, secrets,
+and raw Semgrep findings are not included in the Mistral request or triage
+report. Mistral's risk summary and generic mitigation guidance are not
+source-specific or locally validated; a human must review any remediation.
 Set `MISTRAL_API_KEY` before running it:
 
 ```powershell
 python .\sast_mistral.py
 python .\sast_mistral.py .\src\module.py
-python .\sast_mistral.py . --semgrep-report .\semgrep-results.json --json-report .\mistral-triage.json
+python .\sast_semgrep.py . --json-file .\semgrep-results.json --sarif-file .\semgrep-dataflow.sarif
+python .\sast_evidence.py --semgrep-report .\semgrep-results.json --sarif-report .\semgrep-dataflow.sarif --root . --local-report .\local-evidence.json --sanitized-report .\mistral-evidence.json
+python .\sast_mistral.py --evidence-report .\mistral-evidence.json --json-report .\mistral-triage.json
 ```
 
-The default target is `test_mistral.py`. The `--config`, `--metrics`, and
-`--timeout` options are passed to `sast_semgrep.py` when it runs a scan.
+The default target for `sast_mistral.py` is `test_mistral.py`. When given a raw
+Semgrep report via `--semgrep-report`, it resolves source locally and builds
+allowlisted evidence before any Mistral request. `--config`, `--metrics`, and
+`--timeout` are passed to `sast_semgrep.py` when it runs a scan.
 
 The GitHub Actions workflow `.github/workflows/sast-mistral.yml` runs Semgrep
 on pushes to any branch and on pull requests targeting any branch. It uploads
-`semgrep-results.json` as the `semgrep-results` artifact and annotates each
-finding. Findings do not fail this reporting job; scan errors do.
+`semgrep-results.json` for review and `mistral-evidence.json` as a separate
+artifact. The Semgrep JSON may contain matched source lines; protect access to
+that GitHub artifact accordingly. The source-containing `local-evidence.json`
+and SARIF trace report stay on the runner and are not uploaded. Mistral
+downloads only the allowlisted evidence artifact. Findings do not fail the
+reporting job; scan errors do.
 
 Mistral triage runs only for pushes to `main` and manual runs started from
 `main`, using the report from that run. To enable it, create a GitHub Actions
