@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "report_type": "hybrid_remediation_summary",
-  "generated_at": "2026-11-18T18:17:43.365694+00:00",
+  "generated_at": "2026-11-18T19:33:53.118404+00:00",
   "external_api_invoked_by_orchestrator": false,
   "source_code_sent_to_external_api_by_orchestrator": false,
   "tests_executed": false,
@@ -13,8 +13,8 @@
       "line": 344,
       "rule_id": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected",
       "triage_classification": "Requires further investigation",
-      "local_remediation_status": "generation_failed",
-      "proposal_file": null,
+      "local_remediation_status": "proposal_generated",
+      "proposal_file": "remediation\\proposals\\finding-0001.md",
       "tests_executed": false,
       "patch_applied": false,
       "human_review_required": true
