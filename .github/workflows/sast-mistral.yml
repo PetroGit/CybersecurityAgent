@@ -1,3 +1,4 @@
+
 name: SAST with Mistral
 
 on:
@@ -34,14 +35,16 @@ jobs:
           if [ "$status" -gt 1 ]; then
             exit "$status"
           fi
+
           python sast_evidence.py \
             --semgrep-report semgrep-results.json \
             --sarif-report semgrep-dataflow.sarif \
             --root . \
             --local-report local-evidence.json \
             --sanitized-report mistral-evidence.json
+
           if [ "$status" -eq 1 ]; then
-            echo "::notice::Semgrep findings are reported but do not fail this SAST workflow."
+            echo "::notice::Semgrep findings require review."
           fi
 
       - name: Upload Semgrep report
@@ -66,8 +69,10 @@ jobs:
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+
     runs-on: ubuntu-24.04
     environment: mistral-analysis
+
     steps:
       - name: Check out trusted main branch
         uses: actions/checkout@v7
@@ -87,6 +92,49 @@ jobs:
         with:
           name: mistral-evidence
 
+      # NEW: Test API from the GitHub runner
+      - name: Test Mistral API latency
+        if: env.MISTRAL_API_KEY != ''
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: |
+          python - <<'PY'
+          import os
+          import time
+          from mistralai import Mistral
+
+          client = Mistral(
+              api_key=os.environ["MISTRAL_API_KEY"],
+              timeout_ms=30000,
+              retry_config="none",
+          )
+
+          start = time.monotonic()
+
+          try:
+              response = client.chat.complete(
+                  model="mistral-large-4",
+                  messages=[
+                      {
+                          "role": "user",
+                          "content": "Reply with exactly OK."
+                      }
+                  ],
+              )
+
+              elapsed = time.monotonic() - start
+              print(f"API latency: {elapsed:.2f}s")
+              print("API status: SUCCESS")
+
+          except Exception as exc:
+              elapsed = time.monotonic() - start
+              print(f"API latency: {elapsed:.2f}s")
+              print(f"API status: FAILED ({type(exc).__name__})")
+              raise
+          PY
+
       - name: Triage findings with Mistral
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
@@ -96,7 +144,7 @@ jobs:
               --evidence-report mistral-evidence.json \
               --json-report mistral-triage.json
           else
-            echo "::notice::Configure MISTRAL_API_KEY in the mistral-analysis environment to enable triage."
+            echo "::notice::Configure MISTRAL_API_KEY in the mistral-analysis environment."
           fi
 
       - name: Upload Mistral triage report
