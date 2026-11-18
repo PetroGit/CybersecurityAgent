@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "report_type": "hybrid_remediation_summary",
+  "generated_at": "2026-11-16T19:59:17.215886+00:00",
+  "external_api_invoked_by_orchestrator": false,
+  "source_code_sent_to_external_api_by_orchestrator": false,
+  "tests_executed": false,
+  "patches_applied": false,
+  "findings": [
+    {
+      "finding_id": "SAST-0001",
+      "source_file": "sast_mistral.py",
+      "line": 344,
+      "rule_id": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected",
+      "triage_classification": "Requires further investigation",
+      "local_remediation_status": "proposal_generated",
+      "proposal_file": "remediation\\proposals\\finding-0001.md",
+      "tests_executed": false,
+      "patch_applied": false,
+      "human_review_required": true
+    },
+    {
+      "finding_id": "SAST-0002",
+      "source_file": "test_mistral.py",
+      "line": 64,
+      "rule_id": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected",
+      "triage_classification": "Requires further investigation",
+      "local_remediation_status": "proposal_generated",
+      "proposal_file": "remediation\\proposals\\finding-0002.md",
+      "tests_executed": false,
+      "patch_applied": false,
+      "human_review_required": true
+    }
+  ]
+}
