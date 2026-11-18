@@ -179,6 +179,8 @@ def main():
     p.add_argument('--image', default='cybersecurityagent-validator:local')
     p.add_argument('--semgrep-config', help='Repository-relative OFFLINE Semgrep YAML config')
     p.add_argument('--timeout', type=int, default=120)
+    p.add_argument('--mode', choices=('auto', 'remediation', 'triage'), default='auto',
+                   help='auto validates patches or runs generated triage tests when no patch exists')
     args = p.parse_args()
     report = {'schema_version': 1, 'timestamp_utc': datetime.now(timezone.utc).isoformat(),
               'status': 'INCONCLUSIVE', 'checks': {}, 'warnings': [],
@@ -196,15 +198,18 @@ def main():
             'tests': [path for path, _ in tests]}
         if CONFIRMED.search(parts['ASSESSMENT']) or PROOF.search(parts['ASSESSMENT']):
             raise ValueError('Confirmed/demonstrated exploitability requires independent proof; refuse automatic validation')
-        if not patch:
-            report['warnings'].append('No patch supplied; cannot validate remediation')
+        triage = not bool(patch)
+        report['mode'] = 'triage' if triage else 'remediation'
+        if args.mode != 'auto' and args.mode != report['mode']:
+            raise ValueError(f'Proposal is {report["mode"]}, but --mode {args.mode} was requested')
+        if triage:
             report['checks']['patch'] = 'NOT_GENERATED'
-            return 2
+            report['warnings'].append('No patch supplied: only triage evidence can be evaluated')
         if not tests:
-            report['warnings'].append('No executable regression tests supplied')
             report['checks']['tests'] = 'NOT_GENERATED'
+            report['warnings'].append('No executable regression tests supplied')
             return 2
-        paths = parse_diff(patch)
+        paths = [] if triage else parse_diff(patch)
         for path in paths:
             src = root / path
             if not src.is_file() or src.is_symlink() or not src.resolve().is_relative_to(root):
@@ -235,6 +240,42 @@ def main():
                 config = safe_rel(args.semgrep_config)
                 if not (workspace / config).is_file():
                     raise ValueError('Offline Semgrep configuration not present in workspace')
+            if triage:
+                # Only run the explicitly generated tests. Avoid collecting arbitrary
+                # repository tests or importing source modules with import-time effects.
+                for name, code in tests:
+                    dest = workspace / name
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    dest.write_text(code, encoding='utf-8')
+                # Container uses a non-root UID and the workspace is a disposable copy.
+                for directory, dirs, files in os.walk(workspace):
+                    os.chmod(directory, 0o755)
+                    for filename in files:
+                        os.chmod(Path(directory) / filename, 0o644)
+                syntax = docker_cmd(args.image, workspace,
+                    ['python', '-c',
+                     'import ast,sys,pathlib; [ast.parse(pathlib.Path(p).read_text(encoding="utf-8"), filename=p) for p in sys.argv[1:]]',
+                     *[name for name, _ in tests]], args.timeout)
+                report['checks']['triage_test_syntax'] = syntax
+                if syntax.get('exit_code') != 0:
+                    report['status'] = 'FAIL'
+                    return 1
+                pytest = docker_cmd(args.image, workspace,
+                    ['python', '-m', 'pytest', '-q', '-p', 'no:cacheprovider',
+                     '--disable-warnings', *[name for name, _ in tests]], args.timeout)
+                report['checks']['triage_pytest'] = pytest
+                if pytest.get('exit_code') == 5:
+                    report['warnings'].append('No triage tests collected')
+                    return 2
+                if pytest.get('exit_code') is None:
+                    report['warnings'].append('Triage tests could not complete')
+                    return 2
+                if pytest.get('exit_code') != 0:
+                    report['status'] = 'FAIL'
+                    return 1
+                report['status'] = 'TRIAGE_REVIEW_REQUIRED'
+                report['warnings'].append('Passing generated tests do not prove a false positive; manually review full call graph and approve disposition')
+                return 2
             # Run baseline scanner before applying the candidate, using the same config.
             if config:
                 base, before = semgrep_result(args.image, workspace, config, args.timeout)

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "proposal_sha256": "6a8c72166d733a81174ed1fdbc38ef62562f43ac32e572dcdd382e5f46734c74",
+  "proposal_sha256": "fee380d8ed8f6194ee32930916f36cbf679102515255b4011a990d355818496a",
   "model": "mistral-large-4",
   "source": "test_mistral.py",
   "finding_index": 1,

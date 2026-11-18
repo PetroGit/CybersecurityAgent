@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-11-18T23:04:32.441003+00:00",
+  "status": "TRIAGE_REVIEW_REQUIRED",
+  "checks": {
+    "patch": "NOT_GENERATED",
+    "copy": {
+      "files": 25,
+      "bytes": 248493
+    },
+    "triage_test_syntax": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "triage_pytest": {
+      "exit_code": 0,
+      "stdout": "...                                                                      [100%]\n3 passed in 0.29s\n",
+      "stderr": ""
+    }
+  },
+  "warnings": [
+    "No patch supplied: only triage evidence can be evaluated",
+    "Passing generated tests do not prove a false positive; manually review full call graph and approve disposition"
+  ],
+  "original_repository_modified": false,
+  "human_approval_required": true,
+  "proposal_sha256": "fee380d8ed8f6194ee32930916f36cbf679102515255b4011a990d355818496a",
+  "artifacts": {
+    "assessment": "**Classification: FALSE POSITIVE** for the visible call graph; **NOT ESTABLISHED** for any callers outside the provided excerpt.\n\nObserved facts (from the supplied excerpt of `test_mistral.py`):\n\n- Line 64 is the flagged sink: `with urlopen(request, timeout=20) as response:`.\n- The `request` object is built at line 60 from the function parameter only: `request = Request(url, headers={\"User-Agent\": \"CybersecurityAgent/1.0\"})`. No other expression feeds the URL.\n- The only visible caller of `fetch_page_text` is line 133: `page_text = fetch_page_text(PAGE_URL)`.\n- `PAGE_URL` is a module-level hard-coded literal at line 12: `PAGE_URL = \"https://app.opencve.io/cve/CVE-2026-124194\"` — an `https://` scheme, not attacker-controlled, and not a `file://` (or any other) scheme.\n- Therefore, within the visible code, there is **no attacker-controlled source → reachable sink** chain. The scanner's \"dynamic value\" heuristic matches the *function parameter* `url`, but every observed binding of that parameter is the static constant.\n\nAssumptions / unknowns: the excerpt ends mid-expression at line 164, so any code after line 164 (and any other module importing `fetch_page_text`) is **not visible**. If an unseen caller passed user- or file-controlled input, the finding would become POTENTIAL; that reachability is NOT ESTABLISHED here. Note also that `urllib.request.urlopen` does support `file://`, so the sink itself is real — only the source is absent.",
+    "patch_sha256": null,
+    "tests": [
+      "tests/test_fetch_page_text_url_source_is_constant.py"
+    ]
+  },
+  "mode": "triage"
+}
