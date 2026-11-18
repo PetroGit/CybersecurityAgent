@@ -652,7 +652,11 @@ def main():
             return 2
         return 2
 
-    client = Mistral(api_key=api_key)
+    client = Mistral(
+    api_key=api_key,
+    timeout_ms=120000,
+    retry_config="none",
+)
     cwe_pages = {}
     failed_analyses = 0
     rejected_total = 0
