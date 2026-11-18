@@ -485,9 +485,14 @@ def analyze_finding(client, evidence, cwes, cwe_pages):
     response = client.chat.complete(
         model="mistral-large-4",
         messages=messages,
+        response_format={"type": "json_object"},
     )
 
-    content = response_text(response)
+    content = response_text(response).strip()
+    # Some responses may wrap JSON in a Markdown fence.
+    if content.startswith("```"):
+        content = re.sub(r"^```(?:json)?\s*", "", content, count=1, flags=re.I)
+        content = re.sub(r"\s*```$", "", content, count=1).strip()
     try:
         result = json.loads(content)
     except (json.JSONDecodeError, TypeError) as exc:
@@ -676,12 +681,39 @@ def main():
 
         try:
             triage = analyze_finding(client, evidence, cwes, cwe_pages)
-        except RuntimeError as exc:
-            print(f"Error analyzing finding: {exc}", file=sys.stderr)
+        except Exception as exc:
+            # Only expected API transport failures and local response-format
+            # errors are treated as unavailable enrichment. Unexpected bugs
+            # still fail loudly rather than being silently hidden.
+            error_type = type(exc).__name__
+            transient = error_type in {
+                "ReadTimeout", "ConnectTimeout", "ConnectError",
+                "RemoteProtocolError", "ReadError", "WriteTimeout",
+            }
+            invalid_response = (
+                isinstance(exc, RuntimeError)
+                and str(exc) in {
+                    "Mistral did not return valid JSON.",
+                    "Mistral returned an unexpected JSON format.",
+                }
+            )
+            if not (transient or invalid_response):
+                raise
+            reason = "API_TIMEOUT_OR_NETWORK" if transient else "INVALID_AI_JSON"
+            print(
+                f"WARNING: {evidence['finding_id']} AI enrichment unavailable "
+                f"({reason}; {error_type}). Manual review required.",
+                file=sys.stderr,
+            )
             report["findings"][report_index]["triage"] = {
-                "status": "analysis_failed",
-                "error": str(exc),
+                "status": "ai_unavailable",
+                "classification": "Requires further investigation",
+                "error_code": reason,
+                "verified_claims": [],
+                "rejected_claim_count": 0,
                 "source_code_sent_to_model": False,
+                "patch_is_source_specific": False,
+                "requires_human_review": True,
             }
             failed_analyses += 1
             continue
@@ -720,7 +752,13 @@ def main():
         print(f"Error: {exc}", file=sys.stderr)
         return 2
 
-    return 2 if failed_analyses else 0
+    if failed_analyses:
+        print(
+            f"WARNING: AI enrichment unavailable for {failed_analyses} "
+            "finding(s); preserve Semgrep findings for manual review.",
+            file=sys.stderr,
+        )
+    return 0
 
 
 if __name__ == "__main__":
