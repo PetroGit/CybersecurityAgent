@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-11-18T22:44:26.371682+00:00",
+  "status": "FAIL",
+  "checks": {
+    "validation_error": {
+      "type": "ValueError",
+      "message": "Test code block must start with # tests/test_name.py"
+    }
+  },
+  "warnings": [],
+  "original_repository_modified": false,
+  "human_approval_required": true
+}

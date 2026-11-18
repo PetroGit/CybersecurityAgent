@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "proposal_sha256": "6a8c72166d733a81174ed1fdbc38ef62562f43ac32e572dcdd382e5f46734c74",
+  "model": "mistral-large-4",
+  "source": "test_mistral.py",
+  "finding_index": 1,
+  "has_patch": false,
+  "has_tests": true,
+  "warnings": [],
+  "structurally_complete": true,
+  "warning": "Structural checks only. Not validated, executed, or approved."
+}

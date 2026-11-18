@@ -54,18 +54,31 @@ PATCH_NOT_GENERATED and explain why. For a false positive requiring no change, u
 PATCH_NOT_GENERATED; do not invent a patch merely to satisfy a validator.
 
 SECURITY TESTS: WHENEVER you generate a patch, you MUST provide at least one complete,
-executable, offline regression test in a fenced ```python block, with an explicit line
-'File: tests/test_<descriptive_name>.py' immediately before that block. Use pytest and mock
-network/API clients. Test rejected inputs BEFORE network access, permitted behaviour, and
-redirect behaviour when relevant. Tests must not require live credentials or internet.
-If the target module executes requests or reads credentials at import time, include the
-minimal import-safety refactor in the PATCH if enough context exists; otherwise do NOT
-invent tests that import it. Never output <function_name>, TODO, pass, ellipses, or
-placeholder fixtures. If complete runnable tests cannot be produced, write
-TESTS_NOT_GENERATED and explain why; in that case the proposal is INCONCLUSIVE and not
-ready for approval. A patch with TESTS_NOT_GENERATED is NOT a validated remediation.
-For PATCH_NOT_GENERATED (false-positive triage), tests may be provided as optional evidence;
-if tests cannot be written, say TESTS_NOT_GENERATED without fabricating any.
+executable, offline regression test in a fenced ```python block. The FIRST LINE INSIDE
+EACH Python fenced code block MUST be a filename comment with exactly this format:
+# tests/test_<descriptive_name>.py
+For example:
+```python
+# tests/test_fetch_page_text_security.py
+import pytest
+from unittest import mock
+
+def test_rejects_file_scheme():
+    ...
+```
+The example above illustrates formatting ONLY: replace its body with real executable
+assertions and mocks. Do NOT use ellipses, pass, TODO, placeholder fixtures or fake tests
+in the actual output. Do NOT use a separate 'File: tests/...' line outside the fence.
+The validator parses the first line inside the code fence to obtain the test filename.
+Use pytest and mock network/API clients. Test rejected inputs BEFORE network access,
+permitted behaviour, and redirect behaviour when relevant. Tests must not require
+live credentials or internet. If the target module performs requests or reads
+credentials at import time, include a minimal import-safety refactor in the PATCH
+if enough context exists; otherwise do NOT invent tests that import it.
+If complete runnable tests cannot be produced, write TESTS_NOT_GENERATED and explain
+why; in that case the proposal is INCONCLUSIVE and not ready for approval.
+For PATCH_NOT_GENERATED (false-positive triage), tests may be optional evidence;
+if they cannot be written, say TESTS_NOT_GENERATED without fabricating any.
 
 VALIDATION PLAN: Describe independent git apply --check, isolated application, compilation,
 pytest, and same-ruleset Semgrep baseline/rescan; do NOT claim any were run.
@@ -110,8 +123,17 @@ def inspect_output(output):
         warnings.append('Patch lacks a diff --git header')
     if has_patch and not has_tests:
         warnings.append('Patch generated without executable Python tests')
-    if has_tests and not re.search(r'(?m)^File:\s+tests/[A-Za-z0-9_./-]+\.py\s*$', tests):
-        warnings.append('Tests lack an explicit repository-relative File: path')
+    if has_tests:
+        blocks = re.findall(r'```python[^\n]*\n(.*?)\n```', tests, re.S)
+        if not blocks:
+            warnings.append('Python test code fences are malformed')
+        for number, block in enumerate(blocks, 1):
+            first_line = block.splitlines()[0].strip() if block.splitlines() else ''
+            if not re.fullmatch(r'# tests/test_[A-Za-z0-9_]+\.py', first_line):
+                warnings.append(
+                    f'Test block {number} must start with # tests/test_<name>.py '
+                    '(inside the code fence)'
+                )
     if not has_patch and 'PATCH_NOT_GENERATED' not in patch:
         warnings.append('PATCH must contain a diff block or PATCH_NOT_GENERATED')
     if not has_tests and 'TESTS_NOT_GENERATED' not in tests:
@@ -133,7 +155,11 @@ def main():
     p.add_argument('--approve-external-source', action='store_true', required=True)
     p.add_argument('--radius', type=int, default=100)
     p.add_argument('--max-chars', type=int, default=18000)
+    p.add_argument('--timeout-seconds', type=int, default=300,
+                   help='Mistral API timeout in seconds (30-900; default 300)')
     args = p.parse_args()
+    if not 30 <= args.timeout_seconds <= 900:
+        p.error('--timeout-seconds must be between 30 and 900')
     root = Path(args.repo).resolve()
     report = json.loads(Path(args.results).read_text(encoding='utf-8'))
     findings = report['results']
@@ -190,7 +216,7 @@ def main():
         raise ValueError('MISTRAL_API_KEY is not set')
     print(f'External disclosure authorised for {args.source}; lines {start+1}-{end}; {len(payload)} characters.')
     print('Secret checks are heuristic and cannot guarantee confidential data is absent.')
-    client = Mistral(api_key=os.environ['MISTRAL_API_KEY'], timeout_ms=120000, retry_config='none')
+    client = Mistral(api_key=os.environ['MISTRAL_API_KEY'], timeout_ms=args.timeout_seconds * 1000, retry_config='none')
     t0 = time.monotonic()
     response = client.chat.complete(model=MODEL, messages=[
         {'role': 'system', 'content': PROMPT},
