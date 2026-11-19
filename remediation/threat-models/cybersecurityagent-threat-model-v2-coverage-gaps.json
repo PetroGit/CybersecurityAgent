@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-19T21:43:10.626811+00:00",
+  "source_sha256": "34b62a57b5ad0e9d6ee3c733023503400522dedad3814835cb6b949c7caf7720",
+  "review_required": true,
+  "tests_executed": false,
+  "exact_framework_mappings_verified": false,
+  "summary": {
+    "scenario_count": 16,
+    "requirements_count": 64,
+    "proposed_tests_count": 64,
+    "requested_domains": [
+      "iam",
+      "pki",
+      "network",
+      "data",
+      "web-api",
+      "mobile",
+      "mcp",
+      "agentic-ai"
+    ],
+    "stride_counts": {
+      "Spoofing": 3,
+      "Tampering": 5,
+      "Repudiation": 0,
+      "Information Disclosure": 5,
+      "Denial of Service": 1,
+      "Elevation of Privilege": 2
+    },
+    "domain_counts": {
+      "iam": 2,
+      "pki": 2,
+      "network": 3,
+      "data": 2,
+      "web-api": 2,
+      "mobile": 1,
+      "mcp": 2,
+      "agentic-ai": 2
+    },
+    "uncovered_domain_stride_pairs": 34,
+    "gap_count": 51
+  },
+  "gaps": [
+    {
+      "type": "STRIDE_NOT_COVERED",
+      "scenario_id": null,
+      "detail": "Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Elevation of Privilege"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-001",
+      "detail": "Actual workflow files; GITHUB_TOKEN permission blocks; OIDC trust configuration; branch protection and environment approval settings; secret scoping"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-002",
+      "detail": "MFA enforcement evidence; session lifetime policy; commit signing configuration; device posture integration; approval audit log format"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-003",
+      "detail": "Key custody location; signing workflow; verification policy; provenance format; rotation evidence"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-004",
+      "detail": "HTTP client configuration; pinning policy; Ollama transport/auth details; egress allowlist; certificate monitoring"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-005",
+      "detail": "Actual bind address; auth token presence; firewall rules; proxy exposure; logging of access"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-006",
+      "detail": "Runner network policy; egress allowlist; secret masking config; proxy/DLP rules; log retention"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-007",
+      "detail": "Sanitizer implementation; approval workflow; redaction test corpus; Mistral data handling terms; egress payload inspection"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-008",
+      "detail": "Evidence storage location; hash/signing scheme; audit log permissions; retention policy; approval binding format"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-009",
+      "detail": "Custom web/API routes; webhook secret handling; token scopes; source allowlists; approval enforcement points"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-010",
+      "detail": "Review UI stack; markdown sanitizer; CSP headers; iframe usage; approval action URLs"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-011",
+      "detail": "Mobile app existence; storage mechanism; session lifetime; pinning implementation; notification content policy"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-012",
+      "detail": "MCP server implementation; tool inventory; permission model; confirmation UX; sandbox runtime flags"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-013",
+      "detail": "Tool provenance; prompt/system instruction design; policy engine; trace retention; output validation rules"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-014",
+      "detail": "Prompt templates; delimiting strategy; output validation; canary deployment; approval enforcement point"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-015",
+      "detail": "Model provenance process; hash pinning; output monitoring; regression corpus; fallback procedure"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-016",
+      "detail": "Docker run flags; rootless configuration; seccomp profile; resource limits; network policy; workspace teardown evidence"
+    }
+  ],
+  "interpretation": "Coverage gaps are prompts for analysis, not proof that all 48 domain/STRIDE combinations need scenarios."
+}

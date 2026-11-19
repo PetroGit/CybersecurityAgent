@@ -1,0 +1,950 @@
+{
+  "schema_version": 1,
+  "artifact_type": "design_time_threat_model",
+  "generated_at_utc": "2026-11-19T19:12:26.430871+00:00",
+  "model": "mistral-large-4",
+  "design_source": "design_context.md",
+  "design_sha256": "9bc837b8caa252a9d295129aa64ba5fb96c89ad80cf4ba7d245098d685fed7c1",
+  "requested_domains": [
+    "iam",
+    "pki",
+    "network",
+    "data",
+    "web-api",
+    "mobile",
+    "mcp",
+    "agentic-ai"
+  ],
+  "review_required": true,
+  "references": {
+    "OSA": "https://www.opensecurityarchitecture.org/frameworks/",
+    "OWASP_TM": "https://owasp.org/www-community/Threat_Modeling_Process",
+    "MITRE_ATTACK": "https://attack.mitre.org/",
+    "OWASP_MCP": "https://owasp.org/projects/mcp-top-10",
+    "OWASP_AGENTIC": "https://owasp.github.io/www-project-agentic-skills-top-10/",
+    "OWASP_WEB": "https://owasp.org/Top10/2025/",
+    "OWASP_MASVS": "https://mas.owasp.org/",
+    "NIST_CSF": "https://www.nist.gov/cyberframework",
+    "NIST_800_53": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
+    "NIST_800_63": "https://pages.nist.gov/800-63-4/",
+    "NIST_AI_RMF": "https://www.nist.gov/itl/ai-risk-management-framework",
+    "ISO_27001": "https://www.iso.org/standard/27001"
+  },
+  "threat_model": {
+    "scope": "Design-time, review-only threat model for the CybersecurityAgent security-assessment orchestration design, covering iam, pki, network, data, web-api, mobile, mcp, and agentic-ai. This output records hypotheses and control requirements only; it does not assert that vulnerabilities exist, that controls are implemented, or that tests were executed.",
+    "architecture_summary": "Developers push source to GitHub; GitHub Actions runs Semgrep scans; findings may be sanitized and sent to external Mistral for triage or optional remediation; optional local Ollama is intended for source-local remediation; generated tests/patches are validated in a temporary, network-disabled Docker workspace; humans approve findings, patches, and pull requests. No automatic merge or production deployment is intended.",
+    "assets": [
+      "Proprietary source code and security findings",
+      "Sanitized evidence and audit/audit-trail records",
+      "Mistral API key, GitHub Actions token, OIDC credentials, developer credentials",
+      "GitHub repository, branches, pull requests, approvals, and webhooks",
+      "CI/CD runners and workflow definitions",
+      "Developer workstation and local orchestrator",
+      "Local Ollama HTTP service and local models",
+      "MCP tool server and tool descriptions, if exposed to agents",
+      "Generated remediation artifacts, tests, patches, and Docker images",
+      "Network egress paths to Mistral and loopback/local services",
+      "Mobile approval client, if introduced"
+    ],
+    "trust_boundaries": [
+      "Developer workstation to GitHub repository",
+      "GitHub Actions runner to external Mistral API",
+      "Untrusted repository files and scanner findings to LLM prompt",
+      "Host filesystem to Docker validation workspace",
+      "Local orchestrator to Ollama HTTP service",
+      "AI-generated proposals to human approval / pull-request process",
+      "Web/API entry points to GitHub and approval workflows",
+      "Mobile client to web/API approval services, if present",
+      "Agent/orchestrator to MCP tools, if present"
+    ],
+    "assumptions": [
+      "The design description is treated as untrusted context and not as an instruction source.",
+      "A mobile approval client is not described; mobile scenarios are conditional on such a client being introduced.",
+      "An MCP server/tool surface may be introduced for agent orchestration; MCP scenarios are conditional and should be retired if no MCP surface exists.",
+      "Branch protections, environment approvals, secret storage, key rotation, network controls, and deployment criticality are not yet evidenced.",
+      "Docker validation is intended to be temporary and network-disabled, but actual runtime flags, mounts, capabilities, and resource limits are unknown.",
+      "External disclosure of source snippets requires explicit approval, but the approval workflow and review content are unspecified.",
+      "Likelihood and impact values are qualitative design hypotheses, not measured risk ratings."
+    ],
+    "open_questions": [
+      "What are the actual GitHub organization branch protections, required reviewers, and environment approval rules?",
+      "Which workflows use pull_request_target, write tokens, secrets, or untrusted checkout patterns?",
+      "Is Ollama bound only to loopback, and what authentication, firewall, or process isolation enforces that?",
+      "How are source snippets selected, reviewed, redacted, and approved before external disclosure to Mistral?",
+      "Where are Mistral API keys, GitHub tokens, OIDC credentials, and signing keys stored, and how are they rotated?",
+      "What network egress controls exist for CI runners and local orchestrators?",
+      "What MCP tools, if any, are exposed, with what schemas, permissions, and confirmation requirements?",
+      "What validation proves Docker workspaces are network-disabled, rootless, resource-limited, and isolated from host filesystem?",
+      "Is there a mobile client, and if so what data it stores, how sessions are protected, and whether pinning is used?",
+      "What deployment environments exist, what is the criticality of each asset, and what audit retention/integrity requirements apply?"
+    ],
+    "scenarios": [
+      {
+        "id": "TM-001",
+        "title": "CI workflow identity abuse from untrusted pull requests",
+        "domain": "iam",
+        "stride": "Elevation of Privilege",
+        "threat_actor": "Malicious external contributor or compromised dependency author",
+        "asset": "GitHub Actions token, OIDC credentials, repository write/admin actions",
+        "trust_boundary": "Developer workstation to GitHub repository; GitHub Actions runner to external services",
+        "preconditions": [
+          "A workflow may execute untrusted pull-request code with elevated context",
+          "Default workflow permissions are not read-only or environment approvals are absent",
+          "Secrets are exposed to the workflow environment"
+        ],
+        "attack_tree_path": [
+          "Untrusted change enters repository",
+          "Workflow executes with privileged identity",
+          "Attacker abuses token/OIDC/secrets",
+          "Repository, approvals, or CI state altered"
+        ],
+        "kill_chain_phases": [
+          "Initial Access",
+          "Privilege Escalation",
+          "Persistence",
+          "Collection",
+          "Impact"
+        ],
+        "attack_hypothesis": "If untrusted pull-request code can run under a write-capable token or with access to secrets, an adversary may escalate from contributor to repository or CI control without direct credential theft.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "mitigations": [
+          "Require least-privilege workflow permissions with read-only defaults",
+          "Prefer short-lived OIDC federation over long-lived secrets and validate audience/subject claims",
+          "Avoid privileged workflows on untrusted pull-request events and require environment approvals for sensitive jobs",
+          "Scope secrets by environment and avoid exposing broad tokens to untrusted code"
+        ],
+        "acceptance_tests": [
+          "A test pull request attempting a write operation with a read-only token is denied",
+          "A sensitive job cannot start without recorded environment approval",
+          "OIDC tokens with unexpected audience or subject claims are rejected",
+          "Secret access from an untrusted event context fails closed and is logged"
+        ],
+        "reference_ids": [
+          "NIST_800_63",
+          "NIST_800_53",
+          "OSA",
+          "OWASP_TM",
+          "MITRE_ATTACK"
+        ],
+        "evidence_gaps": [
+          "Actual workflow files",
+          "GITHUB_TOKEN permission blocks",
+          "OIDC trust configuration",
+          "branch protection and environment approval settings",
+          "secret scoping"
+        ]
+      },
+      {
+        "id": "TM-002",
+        "title": "Developer workstation or credential compromise impersonating a maintainer",
+        "domain": "iam",
+        "stride": "Spoofing",
+        "threat_actor": "External attacker using stolen developer credentials or session",
+        "asset": "Developer credentials, GitHub account, commit authorship, pull-request approvals",
+        "trust_boundary": "Developer workstation to GitHub repository",
+        "preconditions": [
+          "Developer uses reusable credentials or long-lived sessions",
+          "Workstation lacks strong device posture or endpoint protection evidence",
+          "Commit signing or approval verification is not enforced"
+        ],
+        "attack_tree_path": [
+          "Compromise workstation or steal credential/session",
+          "Authenticate to GitHub as developer",
+          "Push commits or approve changes",
+          "Hide among legitimate activity"
+        ],
+        "kill_chain_phases": [
+          "Initial Access",
+          "Credential Access",
+          "Collection",
+          "Exfiltration",
+          "Impact"
+        ],
+        "attack_hypothesis": "If authentication relies on weaker factors or long-lived sessions, a stolen credential may be sufficient to impersonate a trusted developer and inject or approve changes.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "mitigations": [
+          "Require phishing-resistant MFA and short-lived sessions for GitHub access",
+          "Use hardware-backed keys or passkeys where supported and bind credentials to device posture where possible",
+          "Require signed commits and verified approvals for protected branches",
+          "Alert on anomalous push/approval patterns and impossible travel"
+        ],
+        "acceptance_tests": [
+          "Login without required second factor is denied",
+          "Revoked or expired session cannot push or approve",
+          "Unsigned commit to a protected branch is rejected",
+          "Approval from an unverified identity cannot satisfy branch protection"
+        ],
+        "reference_ids": [
+          "NIST_800_63",
+          "NIST_800_53",
+          "ISO_27001",
+          "OSA"
+        ],
+        "evidence_gaps": [
+          "MFA enforcement evidence",
+          "session lifetime policy",
+          "commit signing configuration",
+          "device posture integration",
+          "approval audit log format"
+        ]
+      },
+      {
+        "id": "TM-003",
+        "title": "Signing/provenance key misuse allowing forged trusted artifacts",
+        "domain": "pki",
+        "stride": "Tampering",
+        "threat_actor": "Attacker with access to signing material or a compromised release path",
+        "asset": "Code/commit signing keys, artifact signatures, provenance records, release trust decisions",
+        "trust_boundary": "Host filesystem to Docker validation workspace; CI runner to GitHub repository",
+        "preconditions": [
+          "Signing keys are stored on general-purpose CI or developer hosts",
+          "Signature verification is optional or not bound to identity and expected source",
+          "Provenance records can be generated after untrusted build steps"
+        ],
+        "attack_tree_path": [
+          "Obtain or influence signing key access",
+          "Produce artifact with valid-looking signature",
+          "Victim trusts signature/provenance",
+          "Malicious artifact enters approval or validation flow"
+        ],
+        "kill_chain_phases": [
+          "Credential Access",
+          "Defense Evasion",
+          "Impact"
+        ],
+        "attack_hypothesis": "If signatures are not bound to protected key custody and verified against expected identity before use, an attacker may make an untrusted artifact appear trusted.",
+        "likelihood": "Unknown",
+        "impact": "High",
+        "mitigations": [
+          "Store signing keys in protected key management or HSM-backed custody with access logging",
+          "Use short-lived certificates or keyless signing where supported",
+          "Require verification of signer identity, source repository, workflow, and artifact hash before trust",
+          "Record immutable provenance for scanner outputs, patches, and Docker images"
+        ],
+        "acceptance_tests": [
+          "Artifact with invalid signature or unexpected signer is rejected",
+          "Key use outside approved workflow/host is denied and logged",
+          "Tampered artifact fails hash/signature verification",
+          "Provenance record cannot be rewritten after issuance"
+        ],
+        "reference_ids": [
+          "NIST_800_53",
+          "ISO_27001",
+          "OSA",
+          "OWASP_TM"
+        ],
+        "evidence_gaps": [
+          "Key custody location",
+          "signing workflow",
+          "verification policy",
+          "provenance format",
+          "rotation evidence"
+        ]
+      },
+      {
+        "id": "TM-004",
+        "title": "TLS/certificate validation failure on external and local model endpoints",
+        "domain": "pki",
+        "stride": "Information Disclosure",
+        "threat_actor": "Network-position attacker or DNS spoofer",
+        "asset": "Mistral API key, source snippets, Ollama traffic, session tokens",
+        "trust_boundary": "GitHub Actions runner to external Mistral API; local orchestrator to Ollama HTTP service",
+        "preconditions": [
+          "Clients disable or misconfigure certificate validation",
+          "Pinning or allowlists are absent",
+          "Local Ollama endpoint uses plaintext HTTP or permissive exposure"
+        ],
+        "attack_tree_path": [
+          "Intercept or redirect endpoint traffic",
+          "Present invalid/self-signed certificate or spoof DNS",
+          "Capture credentials or inject responses",
+          "Exfiltrate data or poison model output"
+        ],
+        "kill_chain_phases": [
+          "Initial Access",
+          "Credential Access",
+          "Collection",
+          "Exfiltration"
+        ],
+        "attack_hypothesis": "If any client skips certificate validation or endpoint identity checks, a network attacker may capture API keys or manipulate model responses.",
+        "likelihood": "Low",
+        "impact": "High",
+        "mitigations": [
+          "Enforce TLS with system trust roots and fail closed on certificate errors",
+          "Use certificate pinning or SPKI pinning for critical external endpoints where appropriate",
+          "Use mTLS or authenticated local transport for internal model services where feasible",
+          "Restrict egress by hostname/IP and validate service identity"
+        ],
+        "acceptance_tests": [
+          "Connection to endpoint with expired, wrong-host, or self-signed certificate fails",
+          "DNS-spoofed endpoint is rejected by pinning/identity check",
+          "Plaintext HTTP to local model service is refused",
+          "Egress to non-allowlisted model endpoint is blocked"
+        ],
+        "reference_ids": [
+          "NIST_800_53",
+          "OSA",
+          "OWASP_TM",
+          "OWASP_WEB"
+        ],
+        "evidence_gaps": [
+          "HTTP client configuration",
+          "pinning policy",
+          "Ollama transport/auth details",
+          "egress allowlist",
+          "certificate monitoring"
+        ]
+      },
+      {
+        "id": "TM-005",
+        "title": "Ollama service reachable beyond intended loopback or without authentication",
+        "domain": "network",
+        "stride": "Information Disclosure",
+        "threat_actor": "Local or adjacent-network attacker, or SSRF-driven internal client",
+        "asset": "Local Ollama endpoint, prompts containing source/findings, model responses",
+        "trust_boundary": "Local orchestrator to Ollama HTTP service",
+        "preconditions": [
+          "Ollama binds to non-loopback interface or is exposed through proxy",
+          "No authentication token or access control on the HTTP service",
+          "Browser or other local process can reach the port"
+        ],
+        "attack_tree_path": [
+          "Discover listening model port",
+          "Send crafted prompts or read model state",
+          "Extract source/findings from context or logs",
+          "Abuse endpoint as internal pivot"
+        ],
+        "kill_chain_phases": [
+          "Discovery",
+          "Lateral Movement",
+          "Collection",
+          "Exfiltration"
+        ],
+        "attack_hypothesis": "If the local model service is not strictly loopback-only and authenticated, any local or reachable process may submit prompts or retrieve sensitive context.",
+        "likelihood": "Unknown",
+        "impact": "High",
+        "mitigations": [
+          "Bind Ollama to 127.0.0.1 or Unix socket only and enforce with firewall/host policy",
+          "Require per-session token or local authentication for model requests",
+          "Disable remote model management endpoints and ingress from other interfaces",
+          "Log and alert on non-loopback connection attempts"
+        ],
+        "acceptance_tests": [
+          "Connection from a non-loopback address to the model port is refused",
+          "Unauthenticated HTTP request receives 401/403",
+          "Configuration review shows bind address constrained to loopback",
+          "Firewall rule test blocks external interface access"
+        ],
+        "reference_ids": [
+          "OSA",
+          "NIST_800_53",
+          "OWASP_WEB",
+          "OWASP_TM"
+        ],
+        "evidence_gaps": [
+          "Actual bind address",
+          "auth token presence",
+          "firewall rules",
+          "proxy exposure",
+          "logging of access"
+        ]
+      },
+      {
+        "id": "TM-006",
+        "title": "CI egress path abused for secret exfiltration or command-and-control",
+        "domain": "network",
+        "stride": "Information Disclosure",
+        "threat_actor": "Compromised workflow step, dependency, or injected prompt output",
+        "asset": "Mistral API key, source snippets, scanner findings, CI runner metadata",
+        "trust_boundary": "GitHub Actions runner to external Mistral API",
+        "preconditions": [
+          "Runner has broad internet egress",
+          "Secrets or sensitive findings can enter outbound requests/logs",
+          "No DLP or egress allowlist is enforced"
+        ],
+        "attack_tree_path": [
+          "Gain code execution in workflow",
+          "Read environment or files",
+          "Send data to attacker-controlled host",
+          "Maintain channel or receive instructions"
+        ],
+        "kill_chain_phases": [
+          "Collection",
+          "Command and Control",
+          "Exfiltration"
+        ],
+        "attack_hypothesis": "If egress is unrestricted and secrets are present in the runner environment, malicious code may exfiltrate them or use outbound traffic as a covert channel.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "mitigations": [
+          "Restrict runner egress to allowlisted hosts using proxy/firewall",
+          "Use masked secrets and avoid printing environment variables",
+          "Route external model calls through an inspected proxy with DLP rules",
+          "Block known non-essential ports and protocols; alert on anomalous destinations"
+        ],
+        "acceptance_tests": [
+          "Attempt to reach a non-allowlisted external host from a workflow fails",
+          "Canary secret placed in a test run does not leave the runner except via approved destination",
+          "Proxy logs show only expected Mistral endpoint destinations",
+          "DNS resolution to unexpected domains is denied"
+        ],
+        "reference_ids": [
+          "NIST_CSF",
+          "NIST_800_53",
+          "OSA",
+          "MITRE_ATTACK",
+          "OWASP_TM"
+        ],
+        "evidence_gaps": [
+          "Runner network policy",
+          "egress allowlist",
+          "secret masking config",
+          "proxy/DLP rules",
+          "log retention"
+        ]
+      },
+      {
+        "id": "TM-007",
+        "title": "Sensitive source or secrets leak into external model prompts despite sanitization",
+        "domain": "data",
+        "stride": "Information Disclosure",
+        "threat_actor": "External model provider, prompt-injection adversary, or over-broad disclosure approval",
+        "asset": "Proprietary source code, security findings, secrets, personal data",
+        "trust_boundary": "Untrusted repository files and scanner findings to LLM prompt; GitHub Actions runner to external Mistral API",
+        "preconditions": [
+          "Sanitizer misses secrets, tokens, connection strings, or identifying code",
+          "Disclosure approval is broad, implicit, or not logged",
+          "Prompt includes more context than necessary"
+        ],
+        "attack_tree_path": [
+          "Scanner captures sensitive finding or source snippet",
+          "Sanitization incomplete",
+          "Content sent to external model",
+          "Data retained, inferred, or exposed"
+        ],
+        "kill_chain_phases": [
+          "Collection",
+          "Exfiltration"
+        ],
+        "attack_hypothesis": "If evidence sent to Mistral is not reliably redacted and approved, proprietary source or credentials may be disclosed to an external system even when the workflow is intended to be sanitized.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "mitigations": [
+          "Use canary secrets and pattern-based redaction before any external call",
+          "Require explicit, itemized, logged approval for source disclosure",
+          "Send minimal necessary context and prefer findings over raw source",
+          "Use contractual/technical controls for retention, training exclusion, and deletion where available"
+        ],
+        "acceptance_tests": [
+          "A seeded canary secret in a sample finding is redacted before egress",
+          "External call without approval record is blocked",
+          "Prompt payload size/context is below approved maximum",
+          "Redaction regression suite covers tokens, keys, internal hosts, and personal data patterns"
+        ],
+        "reference_ids": [
+          "OWASP_TM",
+          "OSA",
+          "NIST_CSF",
+          "NIST_AI_RMF",
+          "NIST_800_53"
+        ],
+        "evidence_gaps": [
+          "Sanitizer implementation",
+          "approval workflow",
+          "redaction test corpus",
+          "Mistral data handling terms",
+          "egress payload inspection"
+        ]
+      },
+      {
+        "id": "TM-008",
+        "title": "Tampering with scanner findings or audit evidence undermines review decisions",
+        "domain": "data",
+        "stride": "Tampering",
+        "threat_actor": "Attacker able to modify intermediate evidence, or compromised pipeline component",
+        "asset": "Sanitized evidence, audit records, approval history, remediation decisions",
+        "trust_boundary": "Untrusted repository files and scanner findings to LLM prompt; AI-generated proposals to human approval / pull-request process",
+        "preconditions": [
+          "Evidence is stored mutable without integrity protection",
+          "Audit logs are writable by pipeline identity",
+          "Reviewers cannot verify evidence provenance"
+        ],
+        "attack_tree_path": [
+          "Alter finding severity or content in transit/storage",
+          "Regenerate or delete audit entry",
+          "Human approves falsified evidence",
+          "Weak or malicious patch enters review"
+        ],
+        "kill_chain_phases": [
+          "Defense Evasion",
+          "Impact"
+        ],
+        "attack_hypothesis": "If findings and audit records lack integrity anchoring, an attacker or faulty component could change what reviewers see without leaving a reliable trace.",
+        "likelihood": "Unknown",
+        "impact": "High",
+        "mitigations": [
+          "Hash and sign scanner output and sanitized evidence at creation; verify before display/approval",
+          "Store audit records append-only with restricted write permissions and separate audit identity",
+          "Bind approvals to evidence hash and actor identity",
+          "Retain immutable copies of prompts, outputs, and decisions for traceability"
+        ],
+        "acceptance_tests": [
+          "Modified evidence fails integrity verification before human review",
+          "Attempt to delete or update an audit record is denied and alerted",
+          "Approval is cryptographically bound to evidence hash",
+          "Replay of an old evidence hash is rejected if superseded"
+        ],
+        "reference_ids": [
+          "NIST_800_53",
+          "ISO_27001",
+          "OWASP_TM",
+          "OSA"
+        ],
+        "evidence_gaps": [
+          "Evidence storage location",
+          "hash/signing scheme",
+          "audit log permissions",
+          "retention policy",
+          "approval binding format"
+        ]
+      },
+      {
+        "id": "TM-009",
+        "title": "GitHub webhook/API or approval endpoints accept forged or unauthorized requests",
+        "domain": "web-api",
+        "stride": "Spoofing",
+        "threat_actor": "External attacker probing webhook/API endpoints",
+        "asset": "GitHub repository events, pull-request approvals, automation triggers",
+        "trust_boundary": "Web/API entry points to GitHub and approval workflows",
+        "preconditions": [
+          "Webhooks or custom API endpoints lack signature verification or allowlist",
+          "Endpoints trust client-supplied identity or event fields",
+          "Tokens have broader scopes than needed"
+        ],
+        "attack_tree_path": [
+          "Discover exposed webhook/API route",
+          "Send forged event or command",
+          "Trigger automation or approval action",
+          "Escalate repository privileges"
+        ],
+        "kill_chain_phases": [
+          "Initial Access",
+          "Privilege Escalation",
+          "Impact"
+        ],
+        "attack_hypothesis": "If inbound events are not authenticated and authorized against GitHub signatures and expected scopes, forged requests may drive approvals or CI actions.",
+        "likelihood": "Unknown",
+        "impact": "High",
+        "mitigations": [
+          "Verify GitHub webhook signatures and reject unsigned/unknown senders",
+          "Allowlist source IPs or use private connectivity where possible",
+          "Apply least privilege to automation tokens and separate read/write/approve scopes",
+          "Require human approval for merge/deploy and validate event payloads server-side"
+        ],
+        "acceptance_tests": [
+          "Webhook with invalid signature is rejected with 401/403",
+          "Forged approval event cannot change protected branch state",
+          "Automation token cannot perform actions outside its assigned scope",
+          "Unexpected event fields do not override server-side authorization"
+        ],
+        "reference_ids": [
+          "OWASP_WEB",
+          "NIST_800_63",
+          "OSA",
+          "NIST_800_53"
+        ],
+        "evidence_gaps": [
+          "Custom web/API routes",
+          "webhook secret handling",
+          "token scopes",
+          "source allowlists",
+          "approval enforcement points"
+        ]
+      },
+      {
+        "id": "TM-010",
+        "title": "AI-generated remediation text rendered unsafely in reviewer UI",
+        "domain": "web-api",
+        "stride": "Tampering",
+        "threat_actor": "Prompt-injection or malicious model output aiming at reviewer browser",
+        "asset": "Reviewer session, browser DOM, approval UI integrity",
+        "trust_boundary": "AI-generated proposals to human approval / pull-request process",
+        "preconditions": [
+          "Model output is rendered as HTML/markdown without sanitization",
+          "CSP is weak or absent",
+          "Generated patch text can include links, images, or scripts"
+        ],
+        "attack_tree_path": [
+          "Inject payload into finding/source",
+          "Model emits crafted remediation text",
+          "Reviewer opens proposal",
+          "Script executes in approval context"
+        ],
+        "kill_chain_phases": [
+          "Execution",
+          "Impact"
+        ],
+        "attack_hypothesis": "If proposals are rendered as rich content, model output influenced by untrusted inputs may execute in the reviewer UI despite human approval being required.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "mitigations": [
+          "Treat all model output as untrusted data; render as text or sanitize rich markdown",
+          "Enforce strict CSP, disable inline scripts, and sandbox iframes",
+          "Never auto-apply generated changes; require explicit human diff review",
+          "Separate approval actions from content rendering origins where possible"
+        ],
+        "acceptance_tests": [
+          "Known XSS payload in generated patch does not execute in review UI",
+          "CSP blocks inline script and reports violation",
+          "Links in proposals open in sandboxed/new context and cannot invoke privileged actions",
+          "Diff view shows raw text without interpreting HTML"
+        ],
+        "reference_ids": [
+          "OWASP_WEB",
+          "OWASP_AGENTIC",
+          "OWASP_TM",
+          "OSA"
+        ],
+        "evidence_gaps": [
+          "Review UI stack",
+          "markdown sanitizer",
+          "CSP headers",
+          "iframe usage",
+          "approval action URLs"
+        ]
+      },
+      {
+        "id": "TM-011",
+        "title": "Conditional mobile approval client leaks session or sensitive findings",
+        "domain": "mobile",
+        "stride": "Information Disclosure",
+        "threat_actor": "Attacker with device access, malicious app, or MITM on mobile network",
+        "asset": "Mobile session token, approval actions, push notifications containing finding details",
+        "trust_boundary": "Mobile client to web/API approval services, if present",
+        "preconditions": [
+          "A mobile client is introduced for approvals or finding review",
+          "Tokens stored insecurely or long-lived",
+          "Push notifications include sensitive finding content"
+        ],
+        "attack_tree_path": [
+          "Compromise device or app storage",
+          "Extract token or cached findings",
+          "Call approval API",
+          "Exfiltrate data or approve malicious change"
+        ],
+        "kill_chain_phases": [
+          "Credential Access",
+          "Collection",
+          "Exfiltration",
+          "Impact"
+        ],
+        "attack_hypothesis": "If a mobile client is added without platform secure storage and short sessions, device compromise may expose approval capability and sensitive findings.",
+        "likelihood": "Unknown",
+        "impact": "High",
+        "mitigations": [
+          "Use platform keystore/keychain with biometric unlock and short-lived tokens",
+          "Pin certificates for API endpoints and validate TLS",
+          "Avoid storing raw findings or source in notifications/cache; use opaque references",
+          "Require step-up authentication for approvals and allow remote session revocation"
+        ],
+        "acceptance_tests": [
+          "Token is not readable from ordinary app sandbox storage",
+          "Revoked session cannot approve after server-side revocation",
+          "Certificate pinning rejects MITM proxy certificate",
+          "Push notification contains no secret or source snippet"
+        ],
+        "reference_ids": [
+          "OWASP_MASVS",
+          "NIST_800_63",
+          "OWASP_WEB",
+          "NIST_800_53"
+        ],
+        "evidence_gaps": [
+          "Mobile app existence",
+          "storage mechanism",
+          "session lifetime",
+          "pinning implementation",
+          "notification content policy"
+        ]
+      },
+      {
+        "id": "TM-012",
+        "title": "MCP tool surface grants excessive filesystem, shell, or network capability",
+        "domain": "mcp",
+        "stride": "Elevation of Privilege",
+        "threat_actor": "Prompt-injected agent or compromised orchestrator",
+        "asset": "Host filesystem, secrets, MCP-exposed tools, downstream services",
+        "trust_boundary": "Agent/orchestrator to MCP tools, if present",
+        "preconditions": [
+          "MCP server exposes dangerous tools without per-tool authorization",
+          "Agent can call tools based on untrusted prompt content",
+          "No human confirmation for destructive actions"
+        ],
+        "attack_tree_path": [
+          "Untrusted input influences agent plan",
+          "Agent invokes MCP tool",
+          "Tool reads secrets, executes command, or reaches network",
+          "Privilege or data crosses boundary"
+        ],
+        "kill_chain_phases": [
+          "Execution",
+          "Privilege Escalation",
+          "Collection",
+          "Exfiltration"
+        ],
+        "attack_hypothesis": "If MCP tools are broadly capable and automatically callable, an injected instruction may cause the agent to use file, shell, or network tools beyond the task's need.",
+        "likelihood": "Unknown",
+        "impact": "High",
+        "mitigations": [
+          "Expose only an allowlisted set of MCP tools with explicit schemas and per-tool scopes",
+          "Require human confirmation for file writes, shell execution, network access, and secret access",
+          "Run MCP server in a sandbox with no host mounts, no egress, and resource limits",
+          "Validate tool arguments and treat tool results as untrusted data"
+        ],
+        "acceptance_tests": [
+          "Tool not on allowlist is rejected before execution",
+          "Dangerous tool call requires recorded human approval",
+          "Sandboxed MCP server cannot reach external network or host filesystem",
+          "Malformed tool arguments fail closed and are logged"
+        ],
+        "reference_ids": [
+          "OWASP_MCP",
+          "OWASP_AGENTIC",
+          "NIST_800_53",
+          "OSA"
+        ],
+        "evidence_gaps": [
+          "MCP server implementation",
+          "tool inventory",
+          "permission model",
+          "confirmation UX",
+          "sandbox runtime flags"
+        ]
+      },
+      {
+        "id": "TM-013",
+        "title": "MCP tool descriptions/results poisoned to manipulate agent actions",
+        "domain": "mcp",
+        "stride": "Spoofing",
+        "threat_actor": "Attacker controlling tool output, repository content, or tool metadata",
+        "asset": "Agent decision state, downstream tool calls, human approval inputs",
+        "trust_boundary": "Untrusted repository files and scanner findings to LLM prompt; agent/orchestrator to MCP tools, if present",
+        "preconditions": [
+          "Tool descriptions or results are not integrity-protected",
+          "Agent treats tool output as instructions rather than data",
+          "Cross-tool trust is not separated"
+        ],
+        "attack_tree_path": [
+          "Attacker influences scanner finding or tool result",
+          "Content includes fake instructions or fake schema",
+          "Agent follows injected instruction",
+          "Confused deputy invokes another tool or endpoint"
+        ],
+        "kill_chain_phases": [
+          "Initial Access",
+          "Execution",
+          "Privilege Escalation"
+        ],
+        "attack_hypothesis": "If MCP metadata or outputs are trusted as authoritative, poisoned content may redirect the agent to call unintended tools or misclassify evidence.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "mitigations": [
+          "Sign or pin trusted tool descriptions where possible and validate tool schemas",
+          "Instruct and enforce that tool output is data, never instructions",
+          "Isolate tools by capability and require policy checks before chained calls",
+          "Log full tool call/response trace for human review"
+        ],
+        "acceptance_tests": [
+          "Injected text in tool result does not change agent plan or trigger another tool",
+          "Tool schema mismatch is rejected",
+          "Tool call trace shows actor, reason, arguments, and result for every invocation",
+          "Untrusted content cannot elevate tool permissions"
+        ],
+        "reference_ids": [
+          "OWASP_MCP",
+          "OWASP_AGENTIC",
+          "NIST_AI_RMF",
+          "OWASP_TM"
+        ],
+        "evidence_gaps": [
+          "Tool provenance",
+          "prompt/system instruction design",
+          "policy engine",
+          "trace retention",
+          "output validation rules"
+        ]
+      },
+      {
+        "id": "TM-014",
+        "title": "Prompt injection through findings/source causes disclosure or malicious remediation",
+        "domain": "agentic-ai",
+        "stride": "Tampering",
+        "threat_actor": "Attacker embedding instructions in repository files, commit messages, or scanner findings",
+        "asset": "Source code, API keys, LLM context, generated patches, human approval decisions",
+        "trust_boundary": "Untrusted repository files and scanner findings to LLM prompt; AI-generated proposals to human approval / pull-request process",
+        "preconditions": [
+          "Untrusted content is concatenated into prompts without robust separation",
+          "Model output can influence tool calls or patch content",
+          "No canary or output validation before human review"
+        ],
+        "attack_tree_path": [
+          "Plant instruction in untrusted artifact",
+          "Scanner/orchestrator includes it in prompt",
+          "Model follows instruction",
+          "Secret disclosure, tool misuse, or malicious patch proposed"
+        ],
+        "kill_chain_phases": [
+          "Initial Access",
+          "Execution",
+          "Collection",
+          "Exfiltration",
+          "Impact"
+        ],
+        "attack_hypothesis": "If untrusted repository content can override system intent, an injected instruction may cause the model to exfiltrate context, propose harmful patches, or mislead reviewers.",
+        "likelihood": "High",
+        "impact": "High",
+        "mitigations": [
+          "Use clear instruction hierarchy and delimit untrusted content as data with randomized markers",
+          "Never auto-apply model output; require human diff review and independent validation",
+          "Validate outputs against schemas, canaries, and safety classifiers before use",
+          "Minimize sensitive context and block egress except approved endpoints"
+        ],
+        "acceptance_tests": [
+          "Seeded injection in a test finding does not cause secret canary exfiltration",
+          "Generated patch cannot be applied without human approval record",
+          "Output that violates schema or safety policy is rejected",
+          "Prompt trace shows untrusted content was delimited and logged"
+        ],
+        "reference_ids": [
+          "OWASP_AGENTIC",
+          "NIST_AI_RMF",
+          "OWASP_MCP",
+          "OWASP_TM",
+          "OSA"
+        ],
+        "evidence_gaps": [
+          "Prompt templates",
+          "delimiting strategy",
+          "output validation",
+          "canary deployment",
+          "approval enforcement point"
+        ]
+      },
+      {
+        "id": "TM-015",
+        "title": "Model supply chain or endpoint compromise produces poisoned behavior",
+        "domain": "agentic-ai",
+        "stride": "Tampering",
+        "threat_actor": "Compromised model provider, malicious local model artifact, or MITM on model download",
+        "asset": "Ollama local models, Mistral service responses, remediation quality, evidence interpretation",
+        "trust_boundary": "Local orchestrator to Ollama HTTP service; GitHub Actions runner to external Mistral API",
+        "preconditions": [
+          "Local models are downloaded without checksum/provenance verification",
+          "External provider responses are not monitored for anomalies",
+          "No offline validation baseline exists"
+        ],
+        "attack_tree_path": [
+          "Replace or poison model artifact/service",
+          "Orchestrator loads or calls compromised model",
+          "Model emits misleading triage/remediation",
+          "Human approves harmful or false output"
+        ],
+        "kill_chain_phases": [
+          "Resource Development",
+          "Persistence",
+          "Execution",
+          "Impact"
+        ],
+        "attack_hypothesis": "If model artifacts or provider responses are not verified and monitored, a poisoned model may systematically misclassify findings or propose plausible but harmful patches.",
+        "likelihood": "Unknown",
+        "impact": "High",
+        "mitigations": [
+          "Verify model hashes/signatures and provenance before use; prefer pinned versions",
+          "Monitor outputs against regression suites and canary cases before human display",
+          "Use independent validation in Docker and require consensus or human confirmation for high-risk changes",
+          "Provide kill switch to disable external/local model paths"
+        ],
+        "acceptance_tests": [
+          "Model artifact with mismatched hash/signature is refused",
+          "Poisoned canary input produces detected anomaly and blocks proposal",
+          "Kill switch disables model calls and falls back to human-only review",
+          "Regression test suite flags systematic misclassification"
+        ],
+        "reference_ids": [
+          "NIST_AI_RMF",
+          "OWASP_AGENTIC",
+          "NIST_CSF",
+          "OWASP_TM"
+        ],
+        "evidence_gaps": [
+          "Model provenance process",
+          "hash pinning",
+          "output monitoring",
+          "regression corpus",
+          "fallback procedure"
+        ]
+      },
+      {
+        "id": "TM-016",
+        "title": "Validation workspace escape or resource exhaustion from generated artifacts",
+        "domain": "network",
+        "stride": "Denial of Service",
+        "threat_actor": "Attacker via malicious generated patch/test or model-influenced artifact",
+        "asset": "CI runner host, host filesystem, neighboring jobs, validation service availability",
+        "trust_boundary": "Host filesystem to Docker validation workspace",
+        "preconditions": [
+          "Generated code/tests run in Docker without hardened runtime defaults",
+          "Container has host mounts, added capabilities, host network, or high resource limits",
+          "Network-disabled intent is not enforced by runtime policy"
+        ],
+        "attack_tree_path": [
+          "Model proposes malicious test/patch",
+          "Validation runner executes artifact in container",
+          "Artifact escapes sandbox, reaches host/network, or exhausts resources",
+          "CI availability or host integrity affected"
+        ],
+        "kill_chain_phases": [
+          "Execution",
+          "Privilege Escalation",
+          "Lateral Movement",
+          "Impact"
+        ],
+        "attack_hypothesis": "If the temporary validation workspace is not strictly isolated, generated artifacts could affect the host or other CI jobs despite the human-approval design.",
+        "likelihood": "Unknown",
+        "impact": "High",
+        "mitigations": [
+          "Run validation rootless with no added capabilities, seccomp/AppArmor, read-only rootfs, dropped mounts, and network none",
+          "Enforce CPU/memory/process/disk limits and timeouts",
+          "Use unique ephemeral runner/namespace per job and destroy workspace after validation",
+          "Block host Docker socket, sensitive paths, and metadata endpoints from the container"
+        ],
+        "acceptance_tests": [
+          "Container cannot connect to external network or host loopback services",
+          "Attempt to mount host filesystem or access Docker socket fails",
+          "Resource exhaustion test is terminated by limits without affecting other jobs",
+          "Workspace is destroyed and logs preserved immutably after run"
+        ],
+        "reference_ids": [
+          "OSA",
+          "OWASP_TM",
+          "NIST_800_53",
+          "OWASP_WEB"
+        ],
+        "evidence_gaps": [
+          "Docker run flags",
+          "rootless configuration",
+          "seccomp profile",
+          "resource limits",
+          "network policy",
+          "workspace teardown evidence"
+        ]
+      }
+    ]
+  },
+  "limitations": [
+    "Model output is unverified; authoritative pages were not retrieved",
+    "No patches applied, no tests executed"
+  ]
+}
