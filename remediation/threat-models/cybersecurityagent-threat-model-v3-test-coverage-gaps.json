@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-20T16:25:23.803512+00:00",
+  "source_sha256": "37cc3cac1c0674d9cdfe5c13fb4ee8a515f7146087f25f727ff4a4e53f124f53",
+  "review_required": true,
+  "tests_executed": false,
+  "exact_framework_mappings_verified": false,
+  "summary": {
+    "scenario_count": 8,
+    "requirements_count": 53,
+    "proposed_tests_count": 41,
+    "requested_domains": [
+      "iam",
+      "pki",
+      "network",
+      "data",
+      "web-api",
+      "mobile",
+      "mcp",
+      "agentic-ai"
+    ],
+    "stride_counts": {
+      "Spoofing": 3,
+      "Tampering": 2,
+      "Repudiation": 0,
+      "Information Disclosure": 2,
+      "Denial of Service": 0,
+      "Elevation of Privilege": 1
+    },
+    "domain_counts": {
+      "iam": 1,
+      "pki": 1,
+      "network": 1,
+      "data": 1,
+      "web-api": 1,
+      "mobile": 1,
+      "mcp": 1,
+      "agentic-ai": 1
+    },
+    "uncovered_domain_stride_pairs": 40,
+    "gap_count": 50
+  },
+  "gaps": [
+    {
+      "type": "STRIDE_NOT_COVERED",
+      "scenario_id": null,
+      "detail": "Repudiation"
+    },
+    {
+      "type": "STRIDE_NOT_COVERED",
+      "scenario_id": null,
+      "detail": "Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "iam / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "pki / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "network / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "data / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "web-api / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Tampering"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mobile / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "mcp / Elevation of Privilege"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Spoofing"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Repudiation"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Information Disclosure"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Denial of Service"
+    },
+    {
+      "type": "DOMAIN_STRIDE_UNCOVERED",
+      "scenario_id": null,
+      "detail": "agentic-ai / Elevation of Privilege"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-001",
+      "detail": "Actual workflow permissions blocks, OIDC configuration, branch protection rules, and secret scopes are not provided; Developer MFA method and session-binding controls are unknown; Audit log retention and tamper-evidence for Actions and repository events are unknown"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-002",
+      "detail": "Actual TLS validation, pinning, and CA trust configuration are not provided; Ollama binding and authentication details are unknown; Whether artifacts or images are signed, and where keys are stored, is not specified; Internal PKI policy, certificate lifetimes, and revocation mechanisms are unknown"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-003",
+      "detail": "Actual egress controls, DNS policy, and proxy configuration are not provided; Ollama bind address and firewall rules are unknown; Docker runtime network, mount, capability, and seccomp settings are unverified; Logging coverage for outbound traffic is unknown"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-004",
+      "detail": "Sanitization rules, redaction patterns, and disclosure approval workflow are not supplied; Mistral data retention, training use, and logging behavior are unknown; Prompt templates and which finding fields are sent externally are not specified; Whether canary or secret detection runs before egress is unverified"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-005",
+      "detail": "It is not confirmed that a web API exists; if it does, its authentication, authorization, and exposure are undescribed; Webhook signing and callback verification are unknown; Audit record immutability and access controls are unknown"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-006",
+      "detail": "Whether mobile clients are used for approvals is an assumption, not a supplied fact; MDM, biometric, secure-storage, and token-revocation details are unknown; Push notification content policy is not specified"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-007",
+      "detail": "Whether MCP is used, and which tools/resources it exposes, is an assumption; Tool permission model, human-confirmation enforcement, and MCP server network isolation are unknown; Prompt and tool-output sanitization rules are not supplied"
+    },
+    {
+      "type": "IMPLEMENTATION_EVIDENCE_MISSING",
+      "scenario_id": "TM-008",
+      "detail": "Agent tool permissions, goal constraints, and human-confirmation enforcement are not specified; Independence of validation tests from the agent is unknown; Docker sandbox hardening and artifact signing/provenance are unverified; AI governance ownership, monitoring, and incident-response process are not described"
+    }
+  ],
+  "interpretation": "Coverage gaps are prompts for analysis, not proof that all 48 domain/STRIDE combinations need scenarios."
+}
