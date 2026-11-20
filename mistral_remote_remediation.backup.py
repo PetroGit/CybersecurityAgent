@@ -258,6 +258,8 @@ THREAT_REFERENCES = {
     'OSA': 'https://www.opensecurityarchitecture.org/frameworks/',
     'OWASP_TM': 'https://owasp.org/www-community/Threat_Modeling_Process',
     'MITRE_ATTACK': 'https://attack.mitre.org/',
+    'MITRE_ATLAS': 'https://atlas.mitre.org/',
+    'CIS_CONTROLS': 'https://www.cisecurity.org/controls',
     'OWASP_MCP': 'https://owasp.org/projects/mcp-top-10',
     'OWASP_AGENTIC': 'https://owasp.github.io/www-project-agentic-skills-top-10/',
     'OWASP_WEB': 'https://owasp.org/Top10/2025/',
@@ -280,7 +282,11 @@ If information is missing, make assumptions explicit and add open questions.
 For each scenario include STRIDE category, attack-tree path, kill-chain phases only when
 applicable, preconditions, trust boundary, affected assets, likelihood/impact as qualitative
 hypotheses, recommended mitigations, testable acceptance criteria, and framework reference IDs.
-Distinguish adversary behavior from control requirements. Map MITRE ATT&CK only when the
+Distinguish adversary behavior from control requirements. Use MITRE ATLAS as an
+AI-system adversarial threat reference where relevant; use CIS Controls as defensive
+security safeguards, not as an adversary-technique taxonomy. Cite MITRE_ATLAS and
+CIS_CONTROLS reference IDs for relevant scenarios, without inventing specific
+technique or safeguard IDs. Map MITRE ATT&CK only when the
 scenario is within ATT&CK's scope; omit precise technique IDs unless supplied and verified.
 Avoid presenting a cyber kill chain as mandatory for every threat. Prioritize scenarios
 covering the selected security domains. Output this EXACT JSON structure:
@@ -441,6 +447,10 @@ def threat_model_main(argv):
     paths[0].write_text(json.dumps(package, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     paths[1].write_text('\n'.join(md), encoding='utf-8')
     print(f'Threat model: {paths[1]}\nStructured report: {paths[0]}\nHuman review required.')
+    from threat_artifacts import generate
+    artifacts, summary = generate(paths[0], out_dir, args.output_name, requested)
+    print(f'Security requirements: {summary["requirements_count"]}; proposed tests: {summary["proposed_tests_count"]}')
+    print(f'Coverage review: {artifacts["review_md"]}')
 
 
 def main():
@@ -448,14 +458,18 @@ def main():
     argv = sys.argv[1:]
     if '--mode' in argv:
         i = argv.index('--mode')
-        if i + 1 >= len(argv) or argv[i + 1] not in ('remediation', 'threat-model'):
-            raise ValueError('--mode must be remediation or threat-model')
+        if i + 1 >= len(argv) or argv[i + 1] not in ('remediation', 'threat-model', 'threat-artifacts'):
+            raise ValueError('--mode must be remediation, threat-model, or threat-artifacts')
         mode = argv[i + 1]
         argv = argv[:i] + argv[i + 2:]
     else:
         mode = 'remediation'
     if mode == 'threat-model':
         threat_model_main(argv)
+    elif mode == 'threat-artifacts':
+        from threat_artifacts import main as artifacts_main
+        sys.argv = [sys.argv[0], *argv]
+        artifacts_main()
     else:
         sys.argv = [sys.argv[0], *argv]
         remediation_main()

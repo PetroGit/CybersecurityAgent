@@ -258,6 +258,8 @@ THREAT_REFERENCES = {
     'OSA': 'https://www.opensecurityarchitecture.org/frameworks/',
     'OWASP_TM': 'https://owasp.org/www-community/Threat_Modeling_Process',
     'MITRE_ATTACK': 'https://attack.mitre.org/',
+    'MITRE_ATLAS': 'https://atlas.mitre.org/',
+    'CIS_CONTROLS': 'https://www.cisecurity.org/controls',
     'OWASP_MCP': 'https://owasp.org/projects/mcp-top-10',
     'OWASP_AGENTIC': 'https://owasp.github.io/www-project-agentic-skills-top-10/',
     'OWASP_WEB': 'https://owasp.org/Top10/2025/',
@@ -266,6 +268,10 @@ THREAT_REFERENCES = {
     'NIST_800_53': 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final',
     'NIST_800_63': 'https://pages.nist.gov/800-63-4/',
     'NIST_AI_RMF': 'https://www.nist.gov/itl/ai-risk-management-framework',
+    'NIST_AI_100_2': 'https://csrc.nist.gov/pubs/ai/100/2/e2025/final',
+    'GOOGLE_SAIF': 'https://www.saif.google/secure-ai-framework',
+    'OECD_AI_PRINCIPLES': 'https://www.oecd.org/en/topics/ai-principles.html',
+    'ISO_42001': 'https://www.iso.org/standard/42001',
     'ISO_27001': 'https://www.iso.org/standard/27001',
 }
 THREAT_DOMAINS = ('iam', 'pki', 'network', 'data', 'web-api', 'mobile', 'mcp', 'agentic-ai')
@@ -280,7 +286,19 @@ If information is missing, make assumptions explicit and add open questions.
 For each scenario include STRIDE category, attack-tree path, kill-chain phases only when
 applicable, preconditions, trust boundary, affected assets, likelihood/impact as qualitative
 hypotheses, recommended mitigations, testable acceptance criteria, and framework reference IDs.
-Distinguish adversary behavior from control requirements. Map MITRE ATT&CK only when the
+Distinguish adversary behavior from control requirements. Use MITRE ATLAS as an
+AI-system adversarial threat reference where relevant; use CIS Controls as defensive
+security safeguards, not as an adversary-technique taxonomy. Cite MITRE_ATLAS and
+CIS_CONTROLS reference IDs for relevant scenarios, without inventing specific
+technique or safeguard IDs. Use NIST_AI_100_2 as a reference for adversarial
+machine-learning attack terminology and taxonomy, and GOOGLE_SAIF as an AI
+security risk-management and control framework. Use NIST_AI_RMF, ISO_42001,
+and OECD_AI_PRINCIPLES for AI risk governance, management systems, and
+trustworthy-AI principles respectively; do not misrepresent them as catalogs
+of attacker techniques or proof of compliance. Cite these reference IDs only
+when substantively relevant, and do not invent detailed mappings or claim
+that their pages have been retrieved or independently verified.
+Map MITRE ATT&CK only when the
 scenario is within ATT&CK's scope; omit precise technique IDs unless supplied and verified.
 Avoid presenting a cyber kill chain as mandatory for every threat. Prioritize scenarios
 covering the selected security domains. Output this EXACT JSON structure:
