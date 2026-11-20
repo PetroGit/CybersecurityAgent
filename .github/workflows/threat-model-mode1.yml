@@ -1,0 +1,73 @@
+name: Threat Modeling - Mode 1
+
+on:
+  workflow_dispatch:
+    inputs:
+      design_context:
+        description: Approved design context file on main (repository-relative)
+        required: true
+        default: design_context.md
+        type: string
+      max_scenarios:
+        description: Maximum Mistral-generated threat scenarios (1-30)
+        required: true
+        default: '12'
+        type: string
+      plan_tests:
+        description: Number of proposed tests to include in review-only plan (1-20)
+        required: true
+        default: '3'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  threat-model-mode1:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment: mistral-analysis
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Generate threat model, catalog and review-only validation plan
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          DESIGN_CONTEXT: ${{ inputs.design_context }}
+          MAX_SCENARIOS: ${{ inputs.max_scenarios }}
+          PLAN_TESTS: ${{ inputs.plan_tests }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python threat_pipeline_mode1.py \
+            --repo . \
+            --design-context "$DESIGN_CONTEXT" \
+            --approve-external-design \
+            --max-scenarios "$MAX_SCENARIOS" \
+            --plan-tests "$PLAN_TESTS" \
+            --output-name "threat_ci_${RUN_ID}_${RUN_ATTEMPT}"
+
+      - name: Upload threat modeling outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: threat-model-mode1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            remediation/threat-models/threat_ci_${{ github.run_id }}_${{ github.run_attempt }}*
+            remediation/control-validation/threat_ci_${{ github.run_id }}_${{ github.run_attempt }}*
+          if-no-files-found: warn
+          retention-days: 14
