@@ -209,8 +209,11 @@ def remediation_main():
     }
     payload = (json.dumps(metadata, ensure_ascii=False) + '\n\nFile: ' +
                args.source + '\nSource excerpt:\n' + excerpt)
+    # Scan raw metadata values as well as JSON-serialized payload: JSON escaping
+    # can split quoted secret patterns and bypass a regex applied only to payload.
+    secret_scan_inputs = [payload, *[v for v in metadata.values() if isinstance(v, str)]]
     for pattern in SECRET_PATTERNS:
-        if pattern.search(payload):
+        if any(pattern.search(value) for value in secret_scan_inputs):
             raise ValueError('Potential secret detected: external disclosure blocked; review locally')
     if not os.environ.get('MISTRAL_API_KEY'):
         raise ValueError('MISTRAL_API_KEY is not set')
@@ -521,8 +524,8 @@ def main():
     argv = sys.argv[1:]
     if '--mode' in argv:
         i = argv.index('--mode')
-        if i + 1 >= len(argv) or argv[i + 1] not in ('remediation', 'threat-model', 'threat-artifacts', 'merge-threat-models'):
-            raise ValueError('--mode must be remediation, threat-model, threat-artifacts, or merge-threat-models')
+        if i + 1 >= len(argv) or argv[i + 1] not in ('remediation', 'threat-model', 'threat-artifacts', 'merge-threat-models', 'validate-threat-controls'):
+            raise ValueError('--mode must be remediation, threat-model, threat-artifacts, or merge-threat-models, or validate-threat-controls')
         mode = argv[i + 1]
         argv = argv[:i] + argv[i + 2:]
     else:
@@ -532,6 +535,9 @@ def main():
     elif mode == 'merge-threat-models':
         from merge_threat_models import merge_main
         merge_main(argv)
+    elif mode == 'validate-threat-controls':
+        from validate_threat_controls import validation_main
+        validation_main(argv)
     elif mode == 'threat-artifacts':
         from threat_artifacts import main as artifacts_main
         sys.argv = [sys.argv[0], *argv]

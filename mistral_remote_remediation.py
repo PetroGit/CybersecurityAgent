@@ -412,13 +412,46 @@ def threat_model_main(argv):
     print(f'Approved external design disclosure: {rel}; {len(design)} characters. Heuristic secret screening only.')
     client = Mistral(api_key=os.environ['MISTRAL_API_KEY'],
                     timeout_ms=args.timeout_seconds * 1000, retry_config='none')
-    response = client.chat.complete(model=MODEL, messages=[
-        {'role': 'system', 'content': THREAT_PROMPT},
-        {'role': 'user', 'content': payload},
-    ])
-    raw = extract_text(response)
-    # Parse only complete JSON; never execute model-generated text.
-    model = json.loads(raw)
+    # Structured output is used only for threat modeling; remediation Markdown is unchanged.
+    # Retry malformed/incomplete JSON without logging the design or model response.
+    model = None
+    for attempt in range(1, 4):
+        response = client.chat.complete(
+            model=MODEL,
+            messages=[
+                {'role': 'system', 'content': THREAT_PROMPT},
+                {'role': 'user', 'content': payload + (
+                    '\nIMPORTANT: Keep every field concise; return a COMPLETE JSON object. '
+                    'Prefer fewer scenarios over an unfinished JSON document.'
+                    if attempt > 1 else ''
+                )},
+            ],
+            response_format={'type': 'json_object'},
+            max_tokens=12000,
+        )
+        raw = extract_text(response)
+        finish_reason = getattr(response.choices[0], 'finish_reason', None)
+        try:
+            # Parse only complete JSON; never execute model-generated text.
+            model = json.loads(raw)
+            if not isinstance(model, dict):
+                raise ValueError('Expected a JSON object')
+            if finish_reason == 'length':
+                raise ValueError('Response hit output token limit')
+            break
+        except (json.JSONDecodeError, ValueError) as exc:
+            print(
+                f'Threat-model JSON attempt {attempt}/3 failed: '
+                f'{type(exc).__name__}; response_chars={len(raw)}; '
+                f'finish_reason={finish_reason}; '
+                f'error_position={getattr(exc, "pos", "n/a")}',
+                file=sys.stderr, flush=True,
+            )
+            if attempt == 3:
+                raise RuntimeError(
+                    'Mistral did not return complete threat-model JSON after 3 attempts. '
+                    'Inspect finish_reason and output length; no model was saved.'
+                ) from exc
     if not isinstance(model, dict) or not isinstance(model.get('scenarios'), list):
         raise ValueError('Model did not return the required threat-model JSON object')
     if not 1 <= len(model['scenarios']) <= args.max_scenarios:
