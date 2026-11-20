@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "artifact_type": "threat_control_validation_plan",
+  "created_at_utc": "2026-11-20T17:08:51.744939+00:00",
+  "catalog_path": "remediation/threat-models/cybersecurityagent-consolidated-v1-test-catalog.json",
+  "catalog_sha256": "c24aa72d1209a99f6a710e895e074a47fcb18509eb22f5d5187481a2c5ebbbcd",
+  "requirements_path": "remediation/threat-models/cybersecurityagent-consolidated-v1-requirements.json",
+  "requirements_sha256": "91226e0a4e967061632e01e9a28bc4b2dfbb7dfe8ba217eb6612a3aa92de5f48",
+  "threat_model_source_sha256": "00c797728b58c42dcf53186685e44a371fdd72e49839d0657393f92068e83eab",
+  "review_required": true,
+  "entries": [
+    {
+      "candidate_file": "remediation/control-validation/control-validation-pilot-v1-candidates/test_tm_004_test_01.py",
+      "test_id": "TM-004-TEST-01",
+      "scenario_id": "TM-004",
+      "domain": "data",
+      "stride": "Information Disclosure",
+      "objective": "A canary secret or API-key-like string in scanned content is redacted or blocks egress before the external call",
+      "expected_result": "A canary secret or API-key-like string in scanned content is redacted or blocks egress before the external call",
+      "preconditions": "Sanitization does not remove all secrets, canaries, internal hostnames, tokens, or sensitive paths; Prompt includes file snippets, findings text, or log lines influenced by the scanned repository; Disclosure approval is not cryptographically bound to the exact payload; The Mistral API key has access to prompt contents and logs are retained or trainable by default; Output parsing can be influenced by injected text",
+      "candidate_control_mappings": [
+        {
+          "requirement_id": "TM-004-REQ-01",
+          "proposed_control": "Minimize external payloads to structured finding metadata and explicitly exclude raw source unless approved",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-02",
+          "proposed_control": "Run secret scanning, canary detection, and sensitive-pattern redaction before any egress",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-03",
+          "proposed_control": "Bind human approval to a hash or immutable preview of the exact evidence payload",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-04",
+          "proposed_control": "Use a dedicated least-privilege API key, disable retention or training where contractually possible, and log requests",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-05",
+          "proposed_control": "Treat model output as untrusted and sanitize before it becomes a patch, test, or PR comment",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-06",
+          "proposed_control": "Prefer local Ollama for source-aware remediation and require explicit approval for external disclosure",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-07",
+          "proposed_control": "Apply data-loss prevention and egress inspection for prompts containing source-like content",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        }
+      ],
+      "automation_candidate": "REQUIRES_FEASIBILITY_REVIEW",
+      "procedure": {
+        "preparation": "Identify implemented control, owner, authorized target, and isolated fixture",
+        "steps": "Implement a deterministic offline pytest test; use mocks and controlled fixtures",
+        "assertions": "Assert both denied behavior and authorized behavior where applicable",
+        "evidence": "Collect pytest output, fixture configuration, observed policy decisions and code revision",
+        "cleanup": "Destroy ephemeral test state; preserve sanitized evidence"
+      },
+      "candidate_test_status": "SPECIFICATION_ONLY_NOT_EXECUTABLE",
+      "approved_test_file": null,
+      "execution_status": "NOT_EXECUTED"
+    },
+    {
+      "candidate_file": "remediation/control-validation/control-validation-pilot-v1-candidates/test_tm_004_test_03.py",
+      "test_id": "TM-004-TEST-03",
+      "scenario_id": "TM-004",
+      "domain": "data",
+      "stride": "Information Disclosure",
+      "objective": "A prompt-injection string in a finding cannot cause an external request, tool call, or inclusion of hidden file contents",
+      "expected_result": "A prompt-injection string in a finding cannot cause an external request, tool call, or inclusion of hidden file contents",
+      "preconditions": "Sanitization does not remove all secrets, canaries, internal hostnames, tokens, or sensitive paths; Prompt includes file snippets, findings text, or log lines influenced by the scanned repository; Disclosure approval is not cryptographically bound to the exact payload; The Mistral API key has access to prompt contents and logs are retained or trainable by default; Output parsing can be influenced by injected text",
+      "candidate_control_mappings": [
+        {
+          "requirement_id": "TM-004-REQ-01",
+          "proposed_control": "Minimize external payloads to structured finding metadata and explicitly exclude raw source unless approved",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-02",
+          "proposed_control": "Run secret scanning, canary detection, and sensitive-pattern redaction before any egress",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-03",
+          "proposed_control": "Bind human approval to a hash or immutable preview of the exact evidence payload",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-04",
+          "proposed_control": "Use a dedicated least-privilege API key, disable retention or training where contractually possible, and log requests",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-05",
+          "proposed_control": "Treat model output as untrusted and sanitize before it becomes a patch, test, or PR comment",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-06",
+          "proposed_control": "Prefer local Ollama for source-aware remediation and require explicit approval for external disclosure",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        },
+        {
+          "requirement_id": "TM-004-REQ-07",
+          "proposed_control": "Apply data-loss prevention and egress inspection for prompts containing source-like content",
+          "mapping_status": "CANDIDATE_REQUIRES_REVIEW"
+        }
+      ],
+      "automation_candidate": "REQUIRES_FEASIBILITY_REVIEW",
+      "procedure": {
+        "preparation": "Identify implemented control, owner, authorized target, and isolated fixture",
+        "steps": "Implement a deterministic offline pytest test; use mocks and controlled fixtures",
+        "assertions": "Assert both denied behavior and authorized behavior where applicable",
+        "evidence": "Collect pytest output, fixture configuration, observed policy decisions and code revision",
+        "cleanup": "Destroy ephemeral test state; preserve sanitized evidence"
+      },
+      "candidate_test_status": "SPECIFICATION_ONLY_NOT_EXECUTABLE",
+      "approved_test_file": null,
+      "execution_status": "NOT_EXECUTED"
+    }
+  ],
+  "limitations": [
+    "Candidate control mappings are scenario-level hypotheses",
+    "No test code generated, no tests executed, no controls verified"
+  ]
+}

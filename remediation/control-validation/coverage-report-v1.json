@@ -1,0 +1,639 @@
+{
+  "summary": {
+    "generated_at_utc": "2026-11-20T17:46:51.828080+00:00",
+    "artifact_type": "threat_control_coverage_summary",
+    "proposed_scenarios": 15,
+    "proposed_requirements": 88,
+    "proposed_test_specifications": 69,
+    "locally_passed_test_specifications": 2,
+    "local_failed_or_inconclusive": 0,
+    "not_executed": 67,
+    "observed_pytest_cases": 9,
+    "verified_security_controls": 0,
+    "caveat": "Scenario-level requirement mappings are candidates, not verified traceability. Local regression success is not certification.",
+    "evidence_path": "remediation/control-validation/tm-004-local-evidence-v1-local-evidence.json"
+  },
+  "tests": [
+    {
+      "test_id": "TM-001-TEST-01",
+      "scenario_id": "TM-001",
+      "domain": "iam",
+      "stride": "Elevation of Privilege",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-001-TEST-02",
+      "scenario_id": "TM-001",
+      "domain": "iam",
+      "stride": "Elevation of Privilege",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-001-TEST-03",
+      "scenario_id": "TM-001",
+      "domain": "iam",
+      "stride": "Elevation of Privilege",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-001-TEST-04",
+      "scenario_id": "TM-001",
+      "domain": "iam",
+      "stride": "Elevation of Privilege",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-001-TEST-05",
+      "scenario_id": "TM-001",
+      "domain": "iam",
+      "stride": "Elevation of Privilege",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-002-TEST-01",
+      "scenario_id": "TM-002",
+      "domain": "pki",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-002-TEST-02",
+      "scenario_id": "TM-002",
+      "domain": "pki",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-002-TEST-03",
+      "scenario_id": "TM-002",
+      "domain": "pki",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-002-TEST-04",
+      "scenario_id": "TM-002",
+      "domain": "pki",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-002-TEST-05",
+      "scenario_id": "TM-002",
+      "domain": "pki",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-003-TEST-01",
+      "scenario_id": "TM-003",
+      "domain": "network",
+      "stride": "Information Disclosure",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-003-TEST-02",
+      "scenario_id": "TM-003",
+      "domain": "network",
+      "stride": "Information Disclosure",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-003-TEST-03",
+      "scenario_id": "TM-003",
+      "domain": "network",
+      "stride": "Information Disclosure",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-003-TEST-04",
+      "scenario_id": "TM-003",
+      "domain": "network",
+      "stride": "Information Disclosure",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-003-TEST-05",
+      "scenario_id": "TM-003",
+      "domain": "network",
+      "stride": "Information Disclosure",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-004-TEST-01",
+      "scenario_id": "TM-004",
+      "domain": "data",
+      "stride": "Information Disclosure",
+      "status": "LOCAL_PASSED_REVIEW_REQUIRED",
+      "observed_pytest_cases": 7,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-004-TEST-02",
+      "scenario_id": "TM-004",
+      "domain": "data",
+      "stride": "Information Disclosure",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-004-TEST-03",
+      "scenario_id": "TM-004",
+      "domain": "data",
+      "stride": "Information Disclosure",
+      "status": "LOCAL_PASSED_REVIEW_REQUIRED",
+      "observed_pytest_cases": 2,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-004-TEST-04",
+      "scenario_id": "TM-004",
+      "domain": "data",
+      "stride": "Information Disclosure",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-004-TEST-05",
+      "scenario_id": "TM-004",
+      "domain": "data",
+      "stride": "Information Disclosure",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-005-TEST-01",
+      "scenario_id": "TM-005",
+      "domain": "web-api",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-005-TEST-02",
+      "scenario_id": "TM-005",
+      "domain": "web-api",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-005-TEST-03",
+      "scenario_id": "TM-005",
+      "domain": "web-api",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-005-TEST-04",
+      "scenario_id": "TM-005",
+      "domain": "web-api",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-005-TEST-05",
+      "scenario_id": "TM-005",
+      "domain": "web-api",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-006-TEST-01",
+      "scenario_id": "TM-006",
+      "domain": "mobile",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-006-TEST-02",
+      "scenario_id": "TM-006",
+      "domain": "mobile",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-006-TEST-03",
+      "scenario_id": "TM-006",
+      "domain": "mobile",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-006-TEST-04",
+      "scenario_id": "TM-006",
+      "domain": "mobile",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-006-TEST-05",
+      "scenario_id": "TM-006",
+      "domain": "mobile",
+      "stride": "Spoofing",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-007-TEST-01",
+      "scenario_id": "TM-007",
+      "domain": "mcp",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-007-TEST-02",
+      "scenario_id": "TM-007",
+      "domain": "mcp",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-007-TEST-03",
+      "scenario_id": "TM-007",
+      "domain": "mcp",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-007-TEST-04",
+      "scenario_id": "TM-007",
+      "domain": "mcp",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-007-TEST-05",
+      "scenario_id": "TM-007",
+      "domain": "mcp",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-008-TEST-01",
+      "scenario_id": "TM-008",
+      "domain": "agentic-ai",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-008-TEST-02",
+      "scenario_id": "TM-008",
+      "domain": "agentic-ai",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-008-TEST-03",
+      "scenario_id": "TM-008",
+      "domain": "agentic-ai",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-008-TEST-04",
+      "scenario_id": "TM-008",
+      "domain": "agentic-ai",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-008-TEST-05",
+      "scenario_id": "TM-008",
+      "domain": "agentic-ai",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-008-TEST-06",
+      "scenario_id": "TM-008",
+      "domain": "agentic-ai",
+      "stride": "Tampering",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-009-TEST-01",
+      "scenario_id": "TM-009",
+      "domain": "iam",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-009-TEST-02",
+      "scenario_id": "TM-009",
+      "domain": "iam",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-009-TEST-03",
+      "scenario_id": "TM-009",
+      "domain": "iam",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-009-TEST-04",
+      "scenario_id": "TM-009",
+      "domain": "iam",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-010-TEST-01",
+      "scenario_id": "TM-010",
+      "domain": "data",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-010-TEST-02",
+      "scenario_id": "TM-010",
+      "domain": "data",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-010-TEST-03",
+      "scenario_id": "TM-010",
+      "domain": "data",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-010-TEST-04",
+      "scenario_id": "TM-010",
+      "domain": "data",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-011-TEST-01",
+      "scenario_id": "TM-011",
+      "domain": "agentic-ai",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-011-TEST-02",
+      "scenario_id": "TM-011",
+      "domain": "agentic-ai",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-011-TEST-03",
+      "scenario_id": "TM-011",
+      "domain": "agentic-ai",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-011-TEST-04",
+      "scenario_id": "TM-011",
+      "domain": "agentic-ai",
+      "stride": "Repudiation",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-012-TEST-01",
+      "scenario_id": "TM-012",
+      "domain": "agentic-ai",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-012-TEST-02",
+      "scenario_id": "TM-012",
+      "domain": "agentic-ai",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-012-TEST-03",
+      "scenario_id": "TM-012",
+      "domain": "agentic-ai",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-012-TEST-04",
+      "scenario_id": "TM-012",
+      "domain": "agentic-ai",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-013-TEST-01",
+      "scenario_id": "TM-013",
+      "domain": "mcp",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-013-TEST-02",
+      "scenario_id": "TM-013",
+      "domain": "mcp",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-013-TEST-03",
+      "scenario_id": "TM-013",
+      "domain": "mcp",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-013-TEST-04",
+      "scenario_id": "TM-013",
+      "domain": "mcp",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-014-TEST-01",
+      "scenario_id": "TM-014",
+      "domain": "network",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-014-TEST-02",
+      "scenario_id": "TM-014",
+      "domain": "network",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-014-TEST-03",
+      "scenario_id": "TM-014",
+      "domain": "network",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-014-TEST-04",
+      "scenario_id": "TM-014",
+      "domain": "network",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-015-TEST-01",
+      "scenario_id": "TM-015",
+      "domain": "web-api",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-015-TEST-02",
+      "scenario_id": "TM-015",
+      "domain": "web-api",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-015-TEST-03",
+      "scenario_id": "TM-015",
+      "domain": "web-api",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    },
+    {
+      "test_id": "TM-015-TEST-04",
+      "scenario_id": "TM-015",
+      "domain": "web-api",
+      "stride": "Denial of Service",
+      "status": "NOT_EXECUTED",
+      "observed_pytest_cases": 0,
+      "control_effectiveness": "NOT_VERIFIED"
+    }
+  ]
+}

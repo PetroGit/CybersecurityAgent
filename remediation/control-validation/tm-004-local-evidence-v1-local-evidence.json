@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "artifact_type": "local_threat_control_regression_evidence",
+  "created_at_utc": "2026-11-20T17:29:47.685820+00:00",
+  "status": "LOCAL_REGRESSION_PASSED_REVIEW_REQUIRED",
+  "approval_status": "NOT_APPROVED",
+  "execution_environment": "LOCAL_UNISOLATED",
+  "plan_path": "remediation/control-validation/control-validation-pilot-v1-plan.json",
+  "plan_sha256": "fc03594a6fb46f76c7ff4b0cbebf8aa38eea4d07514d8c0e73476dad2884f303",
+  "junit_path": "remediation/control-validation/evidence/tm-004-pilot-junit-v2.xml",
+  "junit_sha256": "ec9ea97a8883f579508238f97dc5efd8d26529bcedd6b326b3397b6a24e797fd",
+  "test_file_path": "test_tm_004_controls.py",
+  "test_file_sha256": "2d858fe2c3f1dd55acca5d6778ff95cabc34d8c70d267c7720a99ee8f152f511",
+  "controller_path": "mistral_remote_remediation.py",
+  "controller_sha256": "ff5c9bf03a8527ecda334a91af495bb97055108bae020116d23da8b8b338e5b1",
+  "selected_test_ids": [
+    "TM-004-TEST-01",
+    "TM-004-TEST-03"
+  ],
+  "observed_cases_per_test_id": {
+    "TM-004-TEST-01": 7,
+    "TM-004-TEST-03": 2
+  },
+  "results": {
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "limitations": [
+    "JUnit is supplied by the local operator; this importer cannot authenticate its provenance",
+    "A zero-failure XML file does not independently prove the pytest process exit code was zero",
+    "Assertions and requirement mappings require independent human review",
+    "This record does not authorize Docker execution or certify controls"
+  ]
+}

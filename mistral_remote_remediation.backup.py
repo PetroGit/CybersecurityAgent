@@ -521,14 +521,17 @@ def main():
     argv = sys.argv[1:]
     if '--mode' in argv:
         i = argv.index('--mode')
-        if i + 1 >= len(argv) or argv[i + 1] not in ('remediation', 'threat-model', 'threat-artifacts'):
-            raise ValueError('--mode must be remediation, threat-model, or threat-artifacts')
+        if i + 1 >= len(argv) or argv[i + 1] not in ('remediation', 'threat-model', 'threat-artifacts', 'merge-threat-models'):
+            raise ValueError('--mode must be remediation, threat-model, threat-artifacts, or merge-threat-models')
         mode = argv[i + 1]
         argv = argv[:i] + argv[i + 2:]
     else:
         mode = 'remediation'
     if mode == 'threat-model':
         threat_model_main(argv)
+    elif mode == 'merge-threat-models':
+        from merge_threat_models import merge_main
+        merge_main(argv)
     elif mode == 'threat-artifacts':
         from threat_artifacts import main as artifacts_main
         sys.argv = [sys.argv[0], *argv]
