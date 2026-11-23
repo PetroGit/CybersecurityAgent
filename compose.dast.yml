@@ -1,0 +1,23 @@
+services:
+  demo-app:
+    build: ./demo-app
+    networks:
+      - dast-internal
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    depends_on:
+      demo-app:
+        condition: service_healthy
+    networks:
+      - dast-internal
+    volumes:
+      - ./remediation/dast:/zap/wrk:rw
+    command: ["zap-baseline.py", "-t", "http://demo-app:8080/", "-J", "zap-report.json", "-r", "zap-report.html", "-I"]
+networks:
+  dast-internal:
+    internal: true

@@ -1,0 +1,41 @@
+name: Local DAST Pilot
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'demo-app/**'
+      - 'compose.dast.yml'
+      - 'scanners/normalize_zap.py'
+      - '.github/workflows/local-dast-pilot.yml'
+permissions:
+  contents: read
+jobs:
+  local-dast:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Prepare report directory
+        run: mkdir -p remediation/dast && chmod 777 remediation/dast
+      - name: Build and scan isolated demo app
+        run: docker compose -f compose.dast.yml up --build --exit-code-from zap --abort-on-container-exit
+      - name: Normalize ZAP alerts
+        if: always()
+        run: |
+          if [ -f remediation/dast/zap-report.json ]; then
+            python scanners/normalize_zap.py --input remediation/dast/zap-report.json --output remediation/dast/normalized-findings.json
+          fi
+      - name: Publish reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-dast-results
+          path: remediation/dast/
+          if-no-files-found: warn
+      - name: Cleanup
+        if: always()
+        run: docker compose -f compose.dast.yml down --volumes --remove-orphans
